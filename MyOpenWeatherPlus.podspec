@@ -18,13 +18,13 @@ Pod::Spec.new do |spec|
                    
   spec.ios.deployment_target = "13.0"
 
-  spec.homepage     = "https://github.com/1013540016@qq.com/MyOpenWeatherPlus"
+  spec.homepage     = "https://github.com/Yuan-l/MyOpenWeatherPlus.git"
     
   spec.license      = { :type => "MIT", :file => "FILE_LICENSE" }
 
   spec.author             = { "Yuan-l" => "1013540016@qq.com" }
 
-  spec.source       = { :git => "https://github.com/1013540016@qq.com/MyOpenWeatherPlus.git", :tag => spec.version.to_s }
+  spec.source       = { :git => "https://github.com/Yuan-l/MyOpenWeatherPlus.git", :tag => spec.version.to_s }
 
   spec.source_files  = "Classess", "Classess/**/*.{h,m,swift}"
 
@@ -40,6 +40,8 @@ Pod::Spec.new do |spec|
   spec.dependency 'MJRefresh'
   spec.dependency 'YYModel'
   spec.dependency 'AFNetworking'
+  
+  spec.vendored_frameworks = 'QWeather.framework'
   
   spec.static_framework = true
 end

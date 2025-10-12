@@ -9,6 +9,7 @@
 //  Now, God only knows
 
 #import "QWeatherModel.h"
+#import <YYModel/YYModel.h>
 
 @implementation QWeatherModel
 - (void)encodeWithCoder:(NSCoder *)aCoder { [self yy_modelEncodeWithCoder:aCoder]; }

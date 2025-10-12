@@ -7,6 +7,7 @@
 //
 
 #import "QWeatherBaseView.h"
+#import "QWeatherBaseLabel.h"
 #import "QWeatherTodayWeatherMoonRiseCurveView.h"
 
 NS_ASSUME_NONNULL_BEGIN

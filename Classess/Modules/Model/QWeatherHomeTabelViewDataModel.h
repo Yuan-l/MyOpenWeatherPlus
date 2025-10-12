@@ -9,13 +9,15 @@
 //  Now, God only knows
 
 #import "QWeatherModel.h"
+#import "WarningBaseClass.h"
+#import <QWeather/QWeather.h>
 
 NS_ASSUME_NONNULL_BEGIN
-@class AirBaseClass;
-@class Location;
-@class Now;
-@class Hourly;
-@class Daily;
+//@class AirBaseClass;
+//@class Location;
+//@class Now;
+//@class Hourly;
+//@class Daily;
 
 @interface QWeatherHomeTabelViewDataModel : QWeatherModel
 /**

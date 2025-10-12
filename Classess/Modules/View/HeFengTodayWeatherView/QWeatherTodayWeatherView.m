@@ -10,6 +10,8 @@
 #import "QWeatherTodayWeatherItemView.h"
 #import "QWeatherTodayWeatherAQIView.h"
 #import "QWeatherTodayWeatherMoonRiseView.h"
+#import "FontAndColorMacros.h"
+#import <Masonry/Masonry.h>
 
 @interface QWeatherTodayWeatherView()
 @property (nonatomic,strong) QWeatherBaseLabel *titleLabel;
@@ -37,15 +39,15 @@
     [super layoutSubviews];
     
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(Space_16);
-        make.top.equalTo(Space_16);
+        make.left.mas_equalTo(Space_16);
+        make.top.mas_equalTo(Space_16);
     }];
 #pragma mark item
     [self.itemViewArray[0] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(Space_32);
+        make.left.mas_equalTo(Space_32);
         make.top.equalTo(self.titleLabel.mas_bottom).offset(Space_16);
         make.right.equalTo(self.mas_centerX);
-        make.height.equalTo(40);
+        make.height.mas_equalTo(40);
     }];
     [self.itemViewArray[1] mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.mas_centerX).offset(Space_32);
@@ -54,7 +56,7 @@
         
     }];
     [self.itemViewArray[2] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(Space_32);
+        make.left.mas_equalTo(Space_32);
         make.top.equalTo(self.itemViewArray[0].mas_bottom).offset(Space_16);
         make.height.width.equalTo(self.itemViewArray[0]);
     }];
@@ -64,7 +66,7 @@
         make.height.width.equalTo(self.itemViewArray[0]);
     }];
     [self.itemViewArray[4] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(Space_32);
+        make.left.mas_equalTo(Space_32);
         make.top.equalTo(self.itemViewArray[2].mas_bottom).offset(Space_16);
         make.height.width.equalTo(self.itemViewArray[0]);
     }];
@@ -74,7 +76,7 @@
         make.height.width.equalTo(self.itemViewArray[0]);
     }];
     [self.itemViewArray[6] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(Space_32);
+        make.left.mas_equalTo(Space_32);
         make.top.equalTo(self.itemViewArray[4].mas_bottom).offset(Space_16);
         make.height.width.equalTo(self.itemViewArray[0]);
     }];

@@ -7,6 +7,12 @@
 //
 
 #import "QWeatherTodayWeatherMoonRiseCurveView.h"
+#import "CommonMacros.h"
+#import "UtilsMacros.h"
+#import "FontAndColorMacros.h"
+#import <DateTools/DateTools.h>
+#import <QMUIKit/QMUIKit.h>
+#import <Masonry/Masonry.h>
 
 @implementation QWeatherTodayWeatherMoonRiseCurveView
 
@@ -59,7 +65,7 @@
     [super layoutSubviews];
     [self.bottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.left.right.equalTo(self);
-        make.height.equalTo(1);
+        make.height.equalTo(@(1));
     }];
   
 }

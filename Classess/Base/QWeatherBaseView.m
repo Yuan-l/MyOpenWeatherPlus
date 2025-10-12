@@ -7,6 +7,7 @@
 //
 
 #import "QWeatherBaseView.h"
+#import "FontAndColorMacros.h"
 
 @implementation QWeatherBaseView
 

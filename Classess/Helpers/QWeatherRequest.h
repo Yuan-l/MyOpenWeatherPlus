@@ -9,6 +9,7 @@
 //  Now, God only knows
 
 #import <Foundation/Foundation.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 #import "QWeatherHomeTabelViewDataModel.h"
 
 NS_ASSUME_NONNULL_BEGIN

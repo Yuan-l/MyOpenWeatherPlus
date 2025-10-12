@@ -7,6 +7,8 @@
 //
 
 #import "QWeatherTodayWeatherMoonRiseView.h"
+#import "FontAndColorMacros.h"
+#import <Masonry/Masonry.h>
 
 @implementation QWeatherTodayWeatherMoonRiseView
 
@@ -46,9 +48,9 @@
     
     [self.topLine mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(0);
-        make.left.equalTo(Space_16);
-        make.right.equalTo(-Space_16);
-        make.height.equalTo(1);
+        make.left.equalTo(@(Space_16));
+        make.right.equalTo(@(-Space_16));
+        make.height.equalTo(@(1));
     }];
     
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -56,52 +58,52 @@
     }];
     
     [self.sunriseLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(-Space_16);
-        make.left.equalTo(Space_16);
-        make.height.equalTo(14);
+        make.bottom.equalTo(@(-Space_16));
+        make.left.equalTo(@(Space_16));
+        make.height.equalTo(@(14));
     }];
     
     [self.sunriseTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.equalTo(self.sunriseLabel.mas_top).offset(-4);
         make.left.width.equalTo(self.sunriseLabel);
-        make.height.equalTo(14);
+        make.height.equalTo(@(14));
         
     }];
     
     [self.sunsetLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.equalTo(self.sunriseLabel);
         make.right.equalTo(self.mas_centerX).offset(-Space_16);
-        make.height.equalTo(14);
+        make.height.equalTo(@(14));
     }];
     
     [self.sunsetTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.equalTo(self.sunsetLabel.mas_top).offset(-4);
         make.right.width.equalTo(self.sunsetLabel);
-        make.height.equalTo(14);
+        make.height.equalTo(@(14));
     }];
     
     [self.monthlyLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.equalTo(self.sunriseLabel);
         make.left.equalTo(self.mas_centerX).offset(Space_16);
-        make.height.equalTo(14);
+        make.height.equalTo(@(14));
     }];
     
     [self.monthlyTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.equalTo(self.monthlyLabel.mas_top).offset(-4);
         make.left.width.equalTo(self.monthlyLabel);
-        make.height.equalTo(14);
+        make.height.equalTo(@(14));
     }];
     
     [self.moonfallLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.equalTo(self.sunriseLabel);
-        make.right.equalTo(-Space_16);
-        make.height.equalTo(14);
+        make.right.equalTo(@(-Space_16));
+        make.height.equalTo(@(14));
     }];
     
     [self.moonfallTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.equalTo(self.moonfallLabel.mas_top).offset(-4);
         make.right.width.equalTo(self.moonfallLabel);
-        make.height.equalTo(14);
+        make.height.equalTo(@(14));
     }];
   
     [self.sunCurveView mas_makeConstraints:^(MASConstraintMaker *make) {

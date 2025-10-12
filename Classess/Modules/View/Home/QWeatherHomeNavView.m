@@ -7,6 +7,12 @@
 //
 
 #import "QWeatherHomeNavView.h"
+#import "FontAndColorMacros.h"
+#import "QWeatherDataManager.h"
+#import "QWeatherTool.h"
+#import "CommonMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
 
 @implementation QWeatherHomeNavView
 -(instancetype)initWithFrame:(CGRect)frame{
@@ -19,11 +25,11 @@
 -(void)layoutSubviews{
     [super layoutSubviews];
     [self.menuButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(StatusBarHeight+6);
-        make.right.equalTo(-16);
+        make.top.equalTo(@(StatusBarHeight+6));
+        make.right.equalTo(@(-16));
     }];
     [self.locationButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(Space_16);
+        make.left.equalTo(@(Space_16));
         make.centerY.equalTo(self.menuButton);
         make.height.equalTo(@[self.locationButton,self.locationAddButton]);
     }];
@@ -40,7 +46,7 @@
     [self.pageControl mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.locationButton.mas_bottom).offset(8);
         make.left.equalTo(self.locationTitleButton).offset(2);
-        make.height.equalTo(4);
+        make.height.equalTo(@(4));
     }];
 }
 -(void)configUI{

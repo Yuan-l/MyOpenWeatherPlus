@@ -7,6 +7,8 @@
 //
 
 #import "QWeatherWaterWaveView.h"
+#import "FontAndColorMacros.h"
+#import "UIColor+QMUI.h"
 
 @interface QWeatherWaveProxy: NSObject
 @property (weak, nonatomic) id executor;

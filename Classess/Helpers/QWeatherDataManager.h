@@ -18,7 +18,9 @@ QWeatherLocalizedString(x, nil)
 
 
 #import <Foundation/Foundation.h>
+#import "UtilsMacros.h"
 #import "QWeatherSettingModel.h"
+#import "QWeatherHomeTabelViewDataModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @interface QWeatherDataManager : NSObject
