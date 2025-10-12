@@ -28,5 +28,18 @@ Pod::Spec.new do |spec|
 
   spec.source_files  = "Classess", "Classess/**/*.{h,m,swift}"
 
+  spec.dependency 'Masonry'
+  spec.dependency 'DateTools'
+  spec.dependency 'ReactiveObjC'
+  spec.dependency 'YYText'
+  spec.dependency 'YYCache'
+  spec.dependency 'FDFullscreenPopGesture'
+  spec.dependency 'QMUIKit'
+  spec.dependency 'CocoaLumberjack'
+  spec.dependency 'AMapLocation'
+  spec.dependency 'MJRefresh'
+  spec.dependency 'YYModel'
+  spec.dependency 'AFNetworking'
+  
   spec.static_framework = true
 end
