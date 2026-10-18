@@ -11,6 +11,15 @@
 #import "QWeatherSearchCell.h"
 #import "QWeatherCollectionCityCell.h"
 #import "QWeatherRequest.h"
+#import "QWeatherDataManager.h"
+#import <YYText/YYText.h>
+
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @interface QWeatherSearchViewController ()<UITableViewDelegate,UITableViewDataSource,UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
 @property (nonatomic,strong) QWeatherSearchBarView *searchView;
@@ -84,7 +93,7 @@
         }];
     }else{
         [self.titleLabel mas_updateConstraints:^(MASConstraintMaker *make) {
-            make.height.equalTo(50);
+            make.height.mas_equalTo(50);
         }];
     }
     [self.view layoutIfNeeded];
@@ -93,12 +102,12 @@
     [self.searchView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.mas_topLayoutGuide);
         make.left.right.equalTo(0);
-        make.height.equalTo(56);
+        make.height.mas_equalTo(56);
     }];
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.searchView.mas_bottom);
-        make.left.equalTo(Space_16);
-        make.height.equalTo(50);
+        make.left.mas_equalTo(Space_16);
+        make.height.mas_equalTo(50);
     }];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.bottom.equalTo(0);

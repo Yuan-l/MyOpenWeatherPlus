@@ -7,6 +7,15 @@
 //
 
 #import "QWeatherAboutViewController.h"
+#import "QWeatherBaseLabel.h"
+#import "QWeatherDataManager.h"
+
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @interface QWeatherAboutViewController ()
 @property (nonatomic,strong) UIImageView *iconImageView;
@@ -53,7 +62,7 @@
     [self.iconImageView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(0);
         make.top.equalTo(self.mas_topLayoutGuide).offset(78);
-        make.width.height.equalTo(88);
+        make.width.height.mas_equalTo(88);
     }];
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(0);
@@ -63,14 +72,14 @@
     [rowView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(0);
         make.top.equalTo(self.titleLabel.mas_bottom).offset(50);
-        make.height.equalTo(50);
+        make.height.mas_equalTo(50);
     }];
     [currentVersionLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(Space_16);
+        make.left.mas_equalTo(Space_16);
         make.centerY.equalTo(0);
     }];
     [currentVersionNmuberLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(-Space_16);
+        make.right.mas_equalTo(-Space_16);
         make.centerY.equalTo(0);
     }];
 }

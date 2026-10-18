@@ -7,6 +7,15 @@
 //
 
 #import "QWeatherHourlyLineImagesView.h"
+#import "QWeatherTool.h"
+#import <DateTools/NSDate+DateTools.h>
+
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @implementation QWeatherHourlyLineImagesView
 

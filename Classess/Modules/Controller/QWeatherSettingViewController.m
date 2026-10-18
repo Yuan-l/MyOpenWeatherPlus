@@ -9,6 +9,16 @@
 #import "QWeatherSettingViewController.h"
 #import "QWeatherAboutViewController.h"
 #import "QWeatherCityManagerViewController.h"
+#import "QWeatherTool.h"
+#import "QWeatherDataManager.h"
+#import "QWeatherBaseLabel.h"
+
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @interface QWeatherSettingViewController ()
 @property (nonatomic,strong) NSArray *titleArray;
@@ -166,8 +176,8 @@
     label.hefengFontSize = QWeatherFontSize_12;
     [view addSubview:label];
     [label mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(-8);
-        make.left.equalTo(Space_16);
+        make.bottom.mas_equalTo(-8);
+        make.left.mas_equalTo(Space_16);
     }];
     return view;
 }

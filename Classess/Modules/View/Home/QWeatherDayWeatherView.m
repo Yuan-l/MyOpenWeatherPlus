@@ -8,6 +8,16 @@
 
 #import "QWeatherDayWeatherView.h"
 #import "QWeatherDayWeatherRowView.h"
+#import "QWeatherTool.h"
+#import "QWeatherDataManager.h"
+
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
+
 @interface QWeatherDayWeatherView()
 @property (nonatomic,strong) NSMutableArray<QWeatherDayWeatherRowView*> *rowViewArray;
 @end

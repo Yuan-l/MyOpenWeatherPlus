@@ -8,6 +8,17 @@
 
 #import "QWeatherAuthorityViewController.h"
 #import "QWeatherSearchViewController.h"
+#import "QWeatherDataManager.h"
+
+#import <YYText/YYText.h>
+#import <FDFullscreenPopGesture/UINavigationController+FDFullscreenPopGesture.h>
+
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @implementation QWeatherAuthorityViewController
 - (void)viewDidLoad {
@@ -62,29 +73,29 @@
     
     [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(0);
-        make.top.equalTo(120);
-        make.height.width.equalTo(80);
+        make.top.mas_equalTo(120);
+        make.height.width.mas_equalTo(80);
     }];
     [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(imageView.mas_bottom).offset(32);
         make.centerX.equalTo(0);
     }];
     [contentLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(61);
-        make.right.equalTo(-61);
+        make.left.mas_equalTo(61);
+        make.right.mas_equalTo(-61);
         make.top.equalTo(titleLabel.mas_bottom).offset(34);
     }];
     [sureButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(contentLabel.mas_bottom).offset(52);
         make.centerX.equalTo(0);
-        make.width.equalTo(170);
-        make.height.equalTo(50);
+        make.width.mas_equalTo(170);
+        make.height.mas_equalTo(50);
     }];
     [cancelButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(sureButton.mas_bottom).offset(16);
         make.centerX.equalTo(0);
-        make.width.equalTo(170);
-        make.height.equalTo(50);
+        make.width.mas_equalTo(170);
+        make.height.mas_equalTo(50);
     }];
     [[QWeatherNotificationCenter rac_addObserverForName:KNotificationRestRootVC object:nil] subscribeNext:^(NSNotification * _Nullable x) {
         [self resetRootVC];

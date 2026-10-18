@@ -7,6 +7,11 @@
 //
 
 #import "QWeatherBaseLabel.h"
+#import "UtilsMacros.h"
+#import "CommonMacros.h"
+#import "QWeatherTool.h"
+#import "QWeatherDataManager.h"
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @implementation QWeatherBaseLabel
 

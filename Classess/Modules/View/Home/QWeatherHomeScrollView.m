@@ -12,6 +12,13 @@
 #import "QWeatherTodayWeatherView.h"
 #import "QWeatherInstructionView.h"
 #import "QWeatherNowWeatherView.h"
+#import "QWeatherTool.h"
+
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
 
 @interface QWeatherHomeScrollView()
 /**
@@ -63,7 +70,7 @@
     }];
     [self.nowWeatherView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.left.right.equalTo(0);
-        make.height.equalTo(SCREEN_HEIGHT-160-NavigationContentTop);
+        make.height.equalTo(@(SCREEN_HEIGHT-160-NavigationContentTop));
     }];
     [self.hourlyWeatherView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(0);

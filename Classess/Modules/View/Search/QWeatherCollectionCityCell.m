@@ -7,6 +7,10 @@
 //
 
 #import "QWeatherCollectionCityCell.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <QMUIKit/QMUIKit.h>
+#import <Masonry/Masonry.h>
 
 @implementation QWeatherCollectionCityCell
 

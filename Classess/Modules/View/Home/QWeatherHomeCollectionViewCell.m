@@ -10,6 +10,13 @@
 #import "QWeatherRefreshHeader.h"
 #import <MJRefresh/MJRefresh.h>
 
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
+
 @implementation QWeatherHomeCollectionViewCell
 
 - (void)awakeFromNib {

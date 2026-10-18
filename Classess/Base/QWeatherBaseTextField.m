@@ -8,6 +8,12 @@
 
 #import "QWeatherBaseTextField.h"
 
+#import "UtilsMacros.h"
+#import "CommonMacros.h"
+#import "QWeatherTool.h"
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
+
 @implementation QWeatherBaseTextField
 -(instancetype)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];

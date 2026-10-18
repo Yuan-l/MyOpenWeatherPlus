@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "QWeatherHourlyLineImagesView.h"
+#import "QWeatherBaseLabel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSUInteger, QWeatherHourlyLineViewType) {

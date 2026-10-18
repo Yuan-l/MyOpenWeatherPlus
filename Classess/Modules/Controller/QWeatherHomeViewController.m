@@ -12,8 +12,20 @@
 #import "QWeatherHomeCollectionViewCell.h"
 #import "QWeatherHomeNavView.h"
 #import "QWeatherRequest.h"
+#import "QWeatherDataManager.h"
+#import "QWeatherTool.h"
 #import <AMapLocationKit/AMapLocationKit.h>
 #import <AMapLocationKit/AMapLocationManager.h>
+#import <QWeather/QWeather.h>
+
+#import <FDFullscreenPopGesture/UINavigationController+FDFullscreenPopGesture.h>
+
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @interface QWeatherHomeViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,AMapLocationManagerDelegate>
 @property (nonatomic,strong) UICollectionView *weatherCollectionView;
@@ -140,7 +152,7 @@
 -(void)configLayout{
     [self.homeNavView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.top.equalTo(0);
-        make.height.equalTo(NavigationContentTop);
+        make.height.mas_equalTo(NavigationContentTop);
     }];
     [self.weatherCollectionView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.bottom.equalTo(0);

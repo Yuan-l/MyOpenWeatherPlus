@@ -9,7 +9,22 @@
 //  Now, God only knows
 
 #import "QWeatherTool.h"
+#import "QWeatherDataManager.h"
+#import <QWeather/QWeather.h>
+
 #import <AMapFoundationKit/AMapFoundationKit.h>
+#import <CoreLocation/CoreLocation.h>
+#import <QMUIKit/QMUIKit.h>
+#import <CocoaLumberjack/CocoaLumberjack.h>
+
+#import <DateTools/NSDate+DateTools.h>
+
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @implementation QWeatherTool
 

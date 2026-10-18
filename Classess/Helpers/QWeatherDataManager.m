@@ -14,6 +14,13 @@
 #import "QWeatherDataManager.h"
 #import <YYCache/YYCache.h>
 
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
+
 static NSString * kcollectionDataArray = @"kcollectionDataArray";
 static NSString * ksettingModel = @"ksettingModel";
 static NSString * const kCH          = @"zh-Hans";

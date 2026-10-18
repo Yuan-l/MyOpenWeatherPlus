@@ -7,6 +7,9 @@
 //
 
 #import "QWeatherSearchCell.h"
+#import "FontAndColorMacros.h"
+#import <QMUIKit/QMUIKit.h>
+#import <Masonry/Masonry.h>
 
 @implementation QWeatherSearchCell
 -(instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
@@ -34,13 +37,13 @@
     [super layoutSubviews];
    
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(Space_16);
+        make.left.equalTo(@Space_16);
         make.top.bottom.right.equalTo(0);
     }];
     [self.line mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.equalTo(0);
         make.right.equalTo(self.contentView);
-        make.height.equalTo(1);
+        make.height.equalTo(@1);
         make.left.equalTo(self.titleLabel);
     }];
 }

@@ -6,6 +6,8 @@
 //  Copyright © 2019 QWeather. All rights reserved.
 //
 
+#import "QWeatherBaseLabel.h"
+
 #import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN

@@ -7,6 +7,16 @@
 //
 
 #import "QWeatherTodayWeatherItemView.h"
+#import "QWeatherTool.h"
+#import "QWeatherDataManager.h"
+#import <QWeather/QWeather.h>
+
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @implementation QWeatherTodayWeatherItemView
 {
@@ -41,7 +51,7 @@
     [self.imageView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(0);
         make.centerY.equalTo(0);
-        make.width.height.equalTo(20);
+        make.width.height.mas_equalTo(20);
     }];
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.imageView.mas_right).offset(8);

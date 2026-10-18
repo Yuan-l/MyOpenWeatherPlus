@@ -12,6 +12,7 @@
 #import "QWeatherTodayWeatherMoonRiseView.h"
 #import "FontAndColorMacros.h"
 #import <Masonry/Masonry.h>
+#import <QMUIKit/UIColor+QMUI.h>
 
 @interface QWeatherTodayWeatherView()
 @property (nonatomic,strong) QWeatherBaseLabel *titleLabel;

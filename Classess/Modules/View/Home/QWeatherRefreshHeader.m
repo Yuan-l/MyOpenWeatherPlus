@@ -8,6 +8,7 @@
 
 #import "QWeatherRefreshHeader.h"
 #import <ImageIO/ImageIO.h>
+#import <QMUIKit/QMUIKit.h>
 
 @implementation QWeatherRefreshHeader
 #pragma mark - 重写父类的方法

@@ -7,8 +7,13 @@
 //
 
 #import "QWeatherTodayWeatherMoonRiseView.h"
+
+#import "CommonMacros.h"
 #import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
 #import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @implementation QWeatherTodayWeatherMoonRiseView
 
@@ -54,7 +59,7 @@
     }];
     
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.top.equalTo(Space_16);
+        make.left.top.mas_equalTo(Space_16);
     }];
     
     [self.sunriseLabel mas_makeConstraints:^(MASConstraintMaker *make) {

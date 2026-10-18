@@ -7,6 +7,15 @@
 //
 
 #import "QWeatherBaseViewController.h"
+#import "QWeatherTool.h"
+
+
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @interface QWeatherBaseViewController ()
 

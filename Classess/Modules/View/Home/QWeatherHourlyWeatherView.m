@@ -7,6 +7,9 @@
 //
 
 #import "QWeatherHourlyWeatherView.h"
+#import "FontAndColorMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
 
 @implementation QWeatherHourlyWeatherView
 
@@ -28,16 +31,16 @@
     [super layoutSubviews];
    
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.left.equalTo(Space_16);
+        make.top.left.equalTo(@Space_16);
     }];
     [self.maxTempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(Space_16);
+        make.left.equalTo(@Space_16);
         make.top.equalTo(self.titleLabel.mas_bottom).offset(35);
     }];
     [self.minTempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(Space_16);
+        make.left.equalTo(@Space_16);
         make.top.equalTo(self.maxTempLabel.mas_bottom).offset(30);
-        make.bottom.equalTo(-20);
+        make.bottom.equalTo(@(-20));
         make.width.equalTo(self.maxTempLabel);
     }];
     [self.weatherLineView mas_makeConstraints:^(MASConstraintMaker *make) {

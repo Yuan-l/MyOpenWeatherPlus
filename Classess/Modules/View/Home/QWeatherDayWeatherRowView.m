@@ -8,6 +8,13 @@
 
 #import "QWeatherDayWeatherRowView.h"
 
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
+
 @implementation QWeatherDayWeatherRowView
 -(instancetype)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];
@@ -40,21 +47,21 @@
     [super layoutSubviews];
     [self.dayLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.bottom.equalTo(0);
-        make.left.equalTo(Space_16);
+        make.left.mas_equalTo(Space_16);
     }];
     [self.dayWeatherImageView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.bottom.equalTo(0);
         make.right.equalTo(self.mas_centerX).offset(-Space_16);
-        make.height.width.equalTo(20);
+        make.height.width.mas_equalTo(20);
     }];
     [self.nightWeatherImageView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.bottom.equalTo(0);
         make.left.equalTo(self.mas_centerX).offset(Space_16);
-        make.height.width.equalTo(20);
+        make.height.width.mas_equalTo(20);
     }];
     [self.minTempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.bottom.equalTo(self);
-        make.right.equalTo(-Space_16);
+        make.right.mas_equalTo(-Space_16);
     }];
     [self.maxTempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.bottom.equalTo(self);

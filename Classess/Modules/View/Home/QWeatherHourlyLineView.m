@@ -8,6 +8,15 @@
 
 #import "QWeatherHourlyLineView.h"
 #import "UIBezierPath+QWeatherPath.h"
+#import "QWeatherTool.h"
+#import <DateTools/NSDate+DateTools.h>
+
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @implementation QWeatherHourlyLineView
 
@@ -31,8 +40,8 @@
     }];
     [self.xLabelsArray mas_distributeViewsAlongAxis:MASAxisTypeHorizontal withFixedSpacing:20 leadSpacing:0 tailSpacing:0];
     [self.xLabelsArray mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(-Space_16);
-        make.width.greaterThanOrEqualTo(60);
+        make.bottom.mas_equalTo(-Space_16);
+        make.width.greaterThanOrEqualTo(@60);
     }];
 }
 -(void)scrollTempLabel{
@@ -169,8 +178,8 @@
             [vline mas_makeConstraints:^(MASConstraintMaker *make) {
                 make.bottom.equalTo(label.mas_top).offset(-5);
                 make.centerX.equalTo(label);
-                make.width.equalTo(1);
-                make.height.equalTo(5);
+                make.width.mas_equalTo(1);
+                make.height.mas_equalTo(5);
             }];
         }
         _xLineView = [UIView new];
@@ -178,7 +187,7 @@
         [self.contentView addSubview:_xLineView];
         [_xLineView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.bottom.equalTo(self.vLineArray.firstObject.mas_top);
-            make.height.equalTo(1);
+            make.height.mas_equalTo(1);
             make.left.equalTo(self.vLineArray.firstObject);
             make.right.equalTo(self.vLineArray.lastObject);
         }];

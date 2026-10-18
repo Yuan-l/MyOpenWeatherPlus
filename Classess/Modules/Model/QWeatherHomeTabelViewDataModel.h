@@ -9,7 +9,7 @@
 //  Now, God only knows
 
 #import "QWeatherModel.h"
-#import "WarningBaseClass.h"
+//#import <MyOpenWeatherPlus/QWeather.h>
 #import <QWeather/QWeather.h>
 
 NS_ASSUME_NONNULL_BEGIN

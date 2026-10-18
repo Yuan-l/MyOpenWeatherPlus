@@ -16,8 +16,6 @@ Pod::Spec.new do |spec|
       "iOS创建TBCustomNetworkLogger库"
                    DESC
                    
-  spec.ios.deployment_target = "13.0"
-
   spec.homepage     = "https://github.com/Yuan-l/MyOpenWeatherPlus.git"
     
   spec.license      = { :type => "MIT", :file => "FILE_LICENSE" }
@@ -26,8 +24,35 @@ Pod::Spec.new do |spec|
 
   spec.source       = { :git => "https://github.com/Yuan-l/MyOpenWeatherPlus.git", :tag => spec.version.to_s }
 
+#  spec.subspec 'Core' do |core|
+#    core.source_files  = "Classess", "Classess/**/*.{h,m,swift}"
+#    core.dependency 'Masonry'
+#    core.dependency 'DateTools'
+#    core.dependency 'ReactiveObjC'
+#    core.dependency 'YYText'
+#    core.dependency 'YYCache'
+#    core.dependency 'FDFullscreenPopGesture'
+#    core.dependency 'QMUIKit'
+#    core.dependency 'CocoaLumberjack'
+#    core.dependency 'AMapLocation'
+#    core.dependency 'MJRefresh'
+#    core.dependency 'YYModel'
+#    core.dependency 'AFNetworking'
+#  end
+#  
+#  spec.subspec 'QWeather' do |sss|
+#    sss.dependency 'MyOpenWeatherPlus/Core'
+#    sss.source_files            = 'Classes/Helpers/*'
+#    sss.ios.vendored_frameworks = 'Classes/Helpers/*.framework'
+#    sss.ios.vendored_library    = 'Classes/Helpers/*.a'
+#    sss.xcconfig = {
+#        'FRAMEWORK_SEARCH_PATHS' => '$(PODS_ROOT)/MyOpenWeatherPlus/Classes/Helpers'
+#    }
+#  end
+#  
+#  spec.default_subspec = 'QWeather'
+  
   spec.source_files  = "Classess", "Classess/**/*.{h,m,swift}"
-
   spec.dependency 'Masonry'
   spec.dependency 'DateTools'
   spec.dependency 'ReactiveObjC'
@@ -41,7 +66,11 @@ Pod::Spec.new do |spec|
   spec.dependency 'YYModel'
   spec.dependency 'AFNetworking'
   
-  spec.vendored_frameworks = 'QWeather.framework'
+  spec.vendored_frameworks = 'Framework/QWeather.framework'
+  spec.vendored_libraries = 'Framework/libPods-OpenWeatherPlus.a'
+  spec.xcconfig = {
+      'FRAMEWORK_SEARCH_PATHS' => '$(PODS_ROOT)/MyOpenWeatherPlus/Framework'
+  }
   
   spec.static_framework = true
 end

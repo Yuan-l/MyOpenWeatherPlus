@@ -7,6 +7,15 @@
 //
 
 #import "QWeatherNowWeatherView.h"
+#import "QWeatherDataManager.h"
+#import "QWeatherTool.h"
+
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @implementation QWeatherNowWeatherView
 {
@@ -65,11 +74,11 @@
     }];
     [self.waterWaveView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.left.right.equalTo(0);
-        make.height.equalTo(45);
+        make.height.mas_equalTo(45);
     }];
     [self.tempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(10);
-        make.top.equalTo(QWeatherAdaptedHeight(125));
+        make.centerX.mas_equalTo(10);
+        make.top.mas_equalTo(QWeatherAdaptedHeight(125));
         
     }];
     [self.weatherStateLabel mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -81,7 +90,8 @@
     }];
     [backView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.weatherStateLabel.mas_bottom).offset(14);
-        make.edges.equalTo(self.alarmLabel).offset(UIEdgeInsetsMake(-4, -14, -4, -14));
+//        make.edges.equalTo(self.alarmLabel).offset(UIEdgeInsetsMake(-4, -14, -4, -14));
+        make.edges.equalTo(self.alarmLabel).insets(UIEdgeInsetsMake(-4, -14, -4, -14));
     }];
     
 }

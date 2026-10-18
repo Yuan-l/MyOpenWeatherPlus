@@ -8,6 +8,7 @@
 
 #import "QWeatherBaseView.h"
 #import "FontAndColorMacros.h"
+#import <QMUIKit/QMUIKit.h>
 
 @implementation QWeatherBaseView
 

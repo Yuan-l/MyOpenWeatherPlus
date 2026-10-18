@@ -7,6 +7,9 @@
 //
 
 #import "QWeatherCityManagerCell.h"
+#import "FontAndColorMacros.h"
+#import <QMUIKit/QMUIKit.h>
+#import <Masonry/Masonry.h>
 
 @implementation QWeatherCityManagerCell
 -(instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
@@ -37,7 +40,7 @@
 -(void)layoutSubviews{
     [super layoutSubviews];
     [self.delButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(Space_16);
+        make.left.equalTo(@Space_16);
         make.height.equalTo(self.delButton.mas_width);
         make.centerY.equalTo(0);
     }];
@@ -48,7 +51,7 @@
     [self.line mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.equalTo(0);
         make.right.equalTo(self);
-        make.height.equalTo(1);
+        make.height.equalTo(@1);
         make.left.equalTo(self.titleLabel);
     }];
 }

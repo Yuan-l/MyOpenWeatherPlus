@@ -7,6 +7,11 @@
 //
 
 #import "QWeatherBaseButton.h"
+#import "UtilsMacros.h"
+#import "CommonMacros.h"
+#import "QWeatherTool.h"
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @implementation QWeatherBaseButton
 -(instancetype)initWithFrame:(CGRect)frame{

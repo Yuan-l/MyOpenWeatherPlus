@@ -37,7 +37,7 @@ FOUNDATION_EXPORT const unsigned char QWeatherVersionString[];
  */
 
 
-#import <QWeather/AllWeatherInquieirs.h>
-#import <QWeather/DataBaseClasses.h>
+#import "AllWeatherInquieirs.h"
+#import "DataBaseClasses.h"
 
 

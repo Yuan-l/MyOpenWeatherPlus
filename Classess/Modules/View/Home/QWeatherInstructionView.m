@@ -8,6 +8,15 @@
 
 #import "QWeatherInstructionView.h"
 #import "QWeatherBaseView.h"
+#import "QWeatherBaseLabel.h"
+
+
+#import "CommonMacros.h"
+#import "FontAndColorMacros.h"
+#import "UtilsMacros.h"
+#import <Masonry/Masonry.h>
+#import <QMUIKit/QMUIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
 @interface QWeatherInstructionView()
 @property (nonatomic,strong) UIImageView *imageView;
@@ -69,16 +78,16 @@
     //    }];
     //
     [self.rightLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(-Space_16);
-        make.top.equalTo(8);
-        make.height.equalTo(32);
+        make.right.mas_equalTo(-Space_16);
+        make.top.mas_equalTo(8);
+        make.height.mas_equalTo(32);
     }];
     
     [self.bottomeView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.rightLabel.mas_bottom).offset(8);
         make.left.bottom.right.equalTo(0);
         if (IS_NOTCHED_SCREEN) {
-            make.height.equalTo(20);
+            make.height.mas_equalTo(20);
         }else{
             make.height.equalTo(0);
         }
