@@ -24,31 +24,8 @@
 }
 -(void)layoutSubviews{
     [super layoutSubviews];
-    [self.menuButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(@(StatusBarHeight+6));
-        make.right.equalTo(@(-16));
-    }];
-    [self.locationButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(@(Space_16));
-        make.centerY.equalTo(self.menuButton);
-        make.height.equalTo(@[self.locationButton,self.locationAddButton]);
-    }];
-    
-    [self.locationTitleButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.locationButton.mas_right).offset(8);
-        make.centerY.equalTo(self.menuButton);
-    }];
-    [self.locationAddButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerY.equalTo(self.menuButton);
-        make.left.equalTo(self.locationTitleButton.mas_right).offset(8);
-    }];
-    
-    [self.pageControl mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.locationButton.mas_bottom).offset(8);
-        make.left.equalTo(self.locationTitleButton).offset(2);
-        make.height.equalTo(@(4));
-    }];
 }
+
 -(void)configUI{
     self.userInteractionEnabled = YES;
     self.menuButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -72,7 +49,32 @@
     self.pageControl.pageIndicatorTintColor = QWeatherColor_CCCCCC;
     self.pageControl.currentPageIndicatorTintColor = QWeatherColor_FAFAFA;
     [self addSubview:self.pageControl];
-    
+
+    [self.menuButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(@(StatusBarHeight+6));
+        make.right.equalTo(@(-16));
+    }];
+    [self.locationButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(@(Space_16));
+        make.centerY.equalTo(self.menuButton);
+        make.height.equalTo(@[self.locationButton,self.locationAddButton]);
+    }];
+
+    [self.locationTitleButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.locationButton.mas_right).offset(8);
+        make.centerY.equalTo(self.menuButton);
+    }];
+    [self.locationAddButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.equalTo(self.menuButton);
+        make.left.equalTo(self.locationTitleButton.mas_right).offset(8);
+    }];
+
+    [self.pageControl mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.locationButton.mas_bottom).offset(8);
+        make.left.equalTo(self.locationTitleButton).offset(2);
+        make.height.equalTo(@(4));
+    }];
+
 }
 -(void)setPage:(NSInteger)page{
     self.pageControl.numberOfPages = QWeatherManager.collectionDataArray.count;

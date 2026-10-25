@@ -49,17 +49,17 @@
 -(void)layoutSubviews{
     [super layoutSubviews];
     [self.imageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(0);
-        make.centerY.equalTo(0);
+        make.left.mas_equalTo(0);
+        make.centerY.mas_equalTo(0);
         make.width.height.mas_equalTo(20);
     }];
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.imageView.mas_right).offset(8);
-        make.centerY.equalTo(0);
+        make.centerY.mas_equalTo(0);
     }];
     [self.contentLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.titleLabel.mas_right).offset(8);
-        make.centerY.equalTo(0);
+        make.centerY.mas_equalTo(0);
     }];
 }
 - (void)setIdx:(NSInteger)idx{

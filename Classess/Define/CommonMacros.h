@@ -10,7 +10,7 @@
 #define CommonMacros_h
 #pragma mark - ——————— 第三方相关Key ————————
 
-#define KAMapLocationAPPKey @"1738388f16cba54c62177cba519e339f"
+#define KAMapLocationAPPKey @"ef5c0ecc77451dce77a350d6c325fdd7"
 #define HeWeatherSDK_USERKey  @"e2db561d89924b799abe2fa42271f86c"
 #define HeWeatherSDK_USERNameKey  @"T5PU3BHXCD"
 

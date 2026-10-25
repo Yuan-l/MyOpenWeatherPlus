@@ -52,7 +52,7 @@
     [super layoutSubviews];
     
     [self.topLine mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(0);
+        make.top.mas_equalTo(0);
         make.left.equalTo(@(Space_16));
         make.right.equalTo(@(-Space_16));
         make.height.equalTo(@(1));

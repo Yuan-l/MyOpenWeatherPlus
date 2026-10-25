@@ -39,6 +39,15 @@
 -(UIStatusBarStyle)preferredStatusBarStyle{
     return UIStatusBarStyleLightContent;
 }
+
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        [QWeatherTool initLog];
+    }
+    return self;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.fd_prefersNavigationBarHidden = YES;
@@ -151,11 +160,13 @@
 }
 -(void)configLayout{
     [self.homeNavView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.top.equalTo(0);
-        make.height.mas_equalTo(NavigationContentTop);
+        make.leading.trailing.equalTo(self.view);
+        make.top.equalTo(self.view.mas_top);
+        make.bottom.equalTo(self.view.mas_safeAreaLayoutGuideTop).offset(44);
     }];
     [self.weatherCollectionView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.bottom.equalTo(0);
+        make.leading.trailing.equalTo(self.view);
+        make.bottom.equalTo(self.view.mas_safeAreaLayoutGuideBottom);
         make.top.equalTo(self.homeNavView.mas_bottom);
     }];
 }
@@ -209,7 +220,8 @@
         _weatherCollectionView.delegate = self;
         _weatherCollectionView.pagingEnabled = YES;
         _weatherCollectionView.showsHorizontalScrollIndicator = NO;
-        [_weatherCollectionView registerNib:[UINib nibWithNibName:NSStringFromClass([QWeatherHomeCollectionViewCell class]) bundle:nil] forCellWithReuseIdentifier:NSStringFromClass([QWeatherHomeCollectionViewCell class])];
+//        [_weatherCollectionView registerNib:[UINib nibWithNibName:NSStringFromClass([QWeatherHomeCollectionViewCell class]) bundle:nil] forCellWithReuseIdentifier:NSStringFromClass([QWeatherHomeCollectionViewCell class])];
+        [_weatherCollectionView registerClass:[QWeatherHomeCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([QWeatherHomeCollectionViewCell class])];
         if (@available(iOS 11.0, *)) {
             _weatherCollectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         } else {

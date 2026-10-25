@@ -55,7 +55,7 @@
     [self.line mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(@Space_16);
         make.right.equalTo(@(-Space_16));
-        make.top.equalTo(0);
+        make.top.mas_equalTo(0);
         make.height.equalTo(@1);
     }];
     
@@ -77,7 +77,7 @@
         make.top.equalTo(self.titleLabel.mas_bottom).offset(Space_24);
     }];
     [self.itemViewArray[1] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(0);
+        make.centerX.mas_equalTo(0);
         make.top.equalTo(self.itemViewArray[0]);
         make.height.width.equalTo(self.itemViewArray[0]);
     }];
@@ -92,7 +92,7 @@
         make.height.width.equalTo(self.itemViewArray[0]);
     }];
     [self.itemViewArray[4] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(0);
+        make.centerX.mas_equalTo(0);
         make.top.equalTo(self.itemViewArray[0].mas_bottom).offset(Space_24);
         make.height.width.equalTo(self.itemViewArray[0]);
     }];

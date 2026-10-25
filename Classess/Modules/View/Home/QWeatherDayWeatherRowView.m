@@ -46,16 +46,16 @@
 -(void)layoutSubviews{
     [super layoutSubviews];
     [self.dayLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.bottom.equalTo(0);
+        make.top.bottom.mas_equalTo(0);
         make.left.mas_equalTo(Space_16);
     }];
     [self.dayWeatherImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.bottom.equalTo(0);
+        make.top.bottom.mas_equalTo(0);
         make.right.equalTo(self.mas_centerX).offset(-Space_16);
         make.height.width.mas_equalTo(20);
     }];
     [self.nightWeatherImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.bottom.equalTo(0);
+        make.top.bottom.mas_equalTo(0);
         make.left.equalTo(self.mas_centerX).offset(Space_16);
         make.height.width.mas_equalTo(20);
     }];

@@ -64,32 +64,6 @@
 }
 -(void)layoutSubviews{
     [super layoutSubviews];
-    [self.contentView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(self);
-        make.width.equalTo(self);
-    }];
-    [self.nowWeatherView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.left.right.equalTo(0);
-        make.height.equalTo(@(SCREEN_HEIGHT-160-NavigationContentTop));
-    }];
-    [self.hourlyWeatherView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.equalTo(0);
-        make.top.equalTo(self.nowWeatherView.mas_bottom);
-    }];
-    [self.threeDayWeatherView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.equalTo(0);
-        make.top.equalTo(self.hourlyWeatherView.mas_bottom);
-    }];
-    [self.todayWeatherView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.equalTo(0);
-        make.top.equalTo(self.threeDayWeatherView.mas_bottom);
-    }];
-    [self.instructionView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.equalTo(0);
-        make.top.equalTo(self.todayWeatherView.mas_bottom);
-        make.bottom.equalTo(0);
-    }];
-    
 }
 -(void)configUI{
     [self addSubview:self.contentView];
@@ -98,7 +72,33 @@
     [self.contentView addSubview:self.threeDayWeatherView];
     [self.contentView addSubview:self.todayWeatherView];
     [self.contentView addSubview:self.instructionView];
-    
+
+    [self.contentView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.edges.equalTo(self);
+        make.width.equalTo(self);
+    }];
+    [self.nowWeatherView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.left.right.mas_equalTo(0);
+        make.height.equalTo(@(SCREEN_HEIGHT-160-NavigationContentTop));
+    }];
+    [self.hourlyWeatherView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.mas_equalTo(0);
+        make.top.equalTo(self.nowWeatherView.mas_bottom);
+    }];
+    [self.threeDayWeatherView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.mas_equalTo(0);
+        make.top.equalTo(self.hourlyWeatherView.mas_bottom);
+    }];
+    [self.todayWeatherView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.mas_equalTo(0);
+        make.top.equalTo(self.threeDayWeatherView.mas_bottom);
+    }];
+    [self.instructionView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.mas_equalTo(0);
+        make.top.equalTo(self.todayWeatherView.mas_bottom);
+        make.bottom.mas_equalTo(0);
+    }];
+
 }
 -(void)setDataModel:(QWeatherHomeTabelViewDataModel *)dataModel{
     _dataModel = dataModel;

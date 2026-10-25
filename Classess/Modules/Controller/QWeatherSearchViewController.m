@@ -89,7 +89,7 @@
 -(void)updateLayout{
     if (self.searchCityArray.count>0) {
         [self.titleLabel mas_updateConstraints:^(MASConstraintMaker *make) {
-            make.height.equalTo(0);
+            make.height.mas_equalTo(0);
         }];
     }else{
         [self.titleLabel mas_updateConstraints:^(MASConstraintMaker *make) {
@@ -101,7 +101,7 @@
 -(void)configLayout{
     [self.searchView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.mas_topLayoutGuide);
-        make.left.right.equalTo(0);
+        make.left.right.mas_equalTo(0);
         make.height.mas_equalTo(56);
     }];
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -110,7 +110,7 @@
         make.height.mas_equalTo(50);
     }];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.bottom.equalTo(0);
+        make.left.right.bottom.mas_equalTo(0);
         make.top.equalTo(self.titleLabel.mas_bottom);
     }];
     [self.collectionView mas_makeConstraints:^(MASConstraintMaker *make) {

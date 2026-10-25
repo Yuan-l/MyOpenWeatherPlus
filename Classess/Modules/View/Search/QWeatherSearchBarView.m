@@ -48,18 +48,18 @@
 -(void)layoutSubviews{
     [super layoutSubviews];
     [self.searchBackView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerY.equalTo(0);
+        make.centerY.mas_equalTo(0);
         make.left.equalTo(@Space_16);
         make.right.equalTo(@(-Space_16));
         make.height.equalTo(@(36));
     }];
     [self.searchImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerY.equalTo(0);
+        make.centerY.mas_equalTo(0);
         make.left.equalTo(@8);
         make.width.height.equalTo(@14);
     }];
     [self.searchTextField mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerY.equalTo(0);
+        make.centerY.mas_equalTo(0);
         make.left.equalTo(self.searchImageView.mas_right).offset(8);
         make.right.equalTo(@(-8));
     }];

@@ -60,6 +60,22 @@
     self.bottomeView = [QWeatherBaseView new];
     self.backgroundColor = QWeatherColor_F7F8FA;
     [self addSubview:self.bottomeView];
+
+    [self.rightLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.mas_equalTo(-Space_16);
+        make.top.mas_equalTo(8);
+        make.height.mas_equalTo(32);
+    }];
+
+    [self.bottomeView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.rightLabel.mas_bottom).offset(8);
+        make.left.bottom.right.mas_equalTo(0);
+        if (IS_NOTCHED_SCREEN) {
+            make.height.mas_equalTo(20);
+        }else{
+            make.height.mas_equalTo(0);
+        }
+    }];
 }
 -(void)clickLabel{
     QWeatherPostNotification(KNotificationOpenSafari, nil);
@@ -77,20 +93,5 @@
     //        make.centerY.equalTo(self.imageView);
     //    }];
     //
-    [self.rightLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.mas_equalTo(-Space_16);
-        make.top.mas_equalTo(8);
-        make.height.mas_equalTo(32);
-    }];
-    
-    [self.bottomeView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.rightLabel.mas_bottom).offset(8);
-        make.left.bottom.right.equalTo(0);
-        if (IS_NOTCHED_SCREEN) {
-            make.height.mas_equalTo(20);
-        }else{
-            make.height.equalTo(0);
-        }
-    }];
 }
 @end

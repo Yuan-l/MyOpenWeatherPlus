@@ -19,19 +19,30 @@
 
 @implementation QWeatherHomeCollectionViewCell
 
-- (void)awakeFromNib {
-    [super awakeFromNib];
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self setupUI];
+    }
+    return self;
+}
+
+- (void)setupUI {
     self.contentView.backgroundColor = QWeatherColor_F7F8FA;
     [self.contentView addSubview:self.scrollView];
+
+    [self.scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.edges.equalTo(self.contentView);
+    }];
+
     [[QWeatherNotificationCenter rac_addObserverForName:KNotificationRefreshEnd object:nil] subscribeNext:^(NSNotification * _Nullable x) {
         [self.scrollView.mj_header endRefreshing];
     }];
 }
+
 -(void)layoutSubviews{
     [super layoutSubviews];
-    [self.scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(self.contentView);
-    }];
 }
 -(QWeatherHomeScrollView *)scrollView{
     if (!_scrollView) {

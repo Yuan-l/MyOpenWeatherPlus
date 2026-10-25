@@ -36,7 +36,7 @@
 }
 -(void)configLayout{
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.bottom.equalTo(0);
+        make.left.right.bottom.mas_equalTo(0);
         make.top.equalTo(self.mas_topLayoutGuide).offset(Space_16);
     }];
 }

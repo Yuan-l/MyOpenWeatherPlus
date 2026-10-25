@@ -60,27 +60,27 @@
     
     
     [self.iconImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(0);
+        make.centerX.mas_equalTo(0);
         make.top.equalTo(self.mas_topLayoutGuide).offset(78);
         make.width.height.mas_equalTo(88);
     }];
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(0);
+        make.centerX.mas_equalTo(0);
         make.top.equalTo(self.iconImageView.mas_bottom).offset(17);
     }];
     
     [rowView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.equalTo(0);
+        make.left.right.mas_equalTo(0);
         make.top.equalTo(self.titleLabel.mas_bottom).offset(50);
         make.height.mas_equalTo(50);
     }];
     [currentVersionLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(Space_16);
-        make.centerY.equalTo(0);
+        make.centerY.mas_equalTo(0);
     }];
     [currentVersionNmuberLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.right.mas_equalTo(-Space_16);
-        make.centerY.equalTo(0);
+        make.centerY.mas_equalTo(0);
     }];
 }
 

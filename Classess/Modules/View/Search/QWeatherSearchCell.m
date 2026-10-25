@@ -38,10 +38,10 @@
    
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(@Space_16);
-        make.top.bottom.right.equalTo(0);
+        make.top.bottom.right.mas_equalTo(0);
     }];
     [self.line mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(0);
+        make.bottom.mas_equalTo(0);
         make.right.equalTo(self.contentView);
         make.height.equalTo(@1);
         make.left.equalTo(self.titleLabel);

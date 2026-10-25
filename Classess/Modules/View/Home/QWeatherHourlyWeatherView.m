@@ -46,8 +46,8 @@
     [self.weatherLineView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.maxTempLabel.mas_right);
         make.top.equalTo(self.maxTempLabel);
-        make.right.equalTo(0);
-        make.bottom.equalTo(0);
+        make.right.mas_equalTo(0);
+        make.bottom.mas_equalTo(0);
     }];
 }
 -(void)reloadViewWithModel:(QWeatherHomeTabelViewDataModel *)model{

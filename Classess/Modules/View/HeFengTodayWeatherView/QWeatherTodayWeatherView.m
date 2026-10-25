@@ -84,13 +84,13 @@
 #pragma mark aqi
     [self.aqiBackView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.itemViewArray[6].mas_bottom).offset(Space_16);
-        make.left.right.equalTo(0);
+        make.left.right.mas_equalTo(0);
     }];
 #pragma mark moonrise
     [self.moonRiseView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.aqiBackView.mas_bottom);
-        make.left.right.equalTo(0);
-        make.bottom.equalTo(0);
+        make.left.right.mas_equalTo(0);
+        make.bottom.mas_equalTo(0);
     }];
     
 }

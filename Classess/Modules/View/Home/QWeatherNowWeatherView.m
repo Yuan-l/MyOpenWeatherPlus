@@ -73,7 +73,7 @@
         make.top.bottom.left.right.equalTo(self);
     }];
     [self.waterWaveView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.left.right.equalTo(0);
+        make.bottom.left.right.mas_equalTo(0);
         make.height.mas_equalTo(45);
     }];
     [self.tempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -82,11 +82,11 @@
         
     }];
     [self.weatherStateLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(0);
+        make.centerX.mas_equalTo(0);
         make.top.equalTo(self.tempLabel.mas_bottom).offset(14);
     }];
     [self.alarmLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(0);
+        make.centerX.mas_equalTo(0);
     }];
     [backView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.weatherStateLabel.mas_bottom).offset(14);

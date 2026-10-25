@@ -37,7 +37,7 @@
     [super layoutSubviews];
     [self.rowViewArray mas_distributeViewsAlongAxis:MASAxisTypeVertical withFixedSpacing:30 leadSpacing:Space_16 tailSpacing:Space_16];
     [self.rowViewArray mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.equalTo(0);
+        make.left.right.mas_equalTo(0);
     }];
 }
 -(void)reloadViewWithModel:(QWeatherHomeTabelViewDataModel *)model{
