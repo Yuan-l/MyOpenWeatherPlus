@@ -26,6 +26,11 @@
 #import <QMUIKit/QMUIKit.h>
 #import <ReactiveObjC/ReactiveObjC.h>
 
+@interface QWeatherTool ()
++ (UIImage *)gradientImageForWeatherCode:(NSString *)weatherCode isDay:(BOOL)isDay;
++ (UIImage *)symbolImageForWeatherCode:(NSString *)weatherCode isDay:(BOOL)isDay;
+@end
+
 @implementation QWeatherTool
 
 +(void)initLog{
@@ -108,7 +113,148 @@
 }
 
 +(UIImage *)getWeatherImageWithWeatherCode:(NSString *)weatherCode isDay:(BOOL)isDay formatString:(nonnull NSString *)formatString{
-    return   UIImageMake(QWeatherStringFormat(@"%@%@%@",formatString,weatherCode,isDay?@"d":@"n"));
+    NSString *imageName = QWeatherStringFormat(@"%@%@%@",formatString,weatherCode,isDay?@"d":@"n");
+    UIImage *image = UIImageMake(imageName);
+
+    // 本地组件没有携带原始天气资源，这里做一层兜底：
+    // - 背景图退化为渐变色，避免白字白底导致文字完全不可见
+    // - 天气图标退化为 SF Symbols，保证列表信息仍然可读
+    if (image) {
+        return image;
+    }
+
+    if ([formatString isEqualToString:QWeatherBgImageFormatString]) {
+        return [self gradientImageForWeatherCode:weatherCode isDay:isDay];
+    }
+
+    if ([formatString isEqualToString:QWeatherImageFormatString]) {
+        return [self symbolImageForWeatherCode:weatherCode isDay:isDay];
+    }
+
+    return nil;
+}
+
+#pragma mark - 缺失资源兜底
+
++ (NSCache<NSString *, UIImage *> *)weatherImageCache {
+    static NSCache *cache;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        cache = [NSCache new];
+        cache.countLimit = 32;
+    });
+    return cache;
+}
+
++ (NSArray<UIColor *> *)gradientColorsForWeatherCode:(NSString *)weatherCode isDay:(BOOL)isDay {
+    NSInteger code = weatherCode.integerValue;
+
+    // 晴天
+    if (code >= 100 && code <= 103) {
+        return isDay
+            ? @[kQWeatherColor(@"#2E7CF6"), kQWeatherColor(@"#7FB8FF")]
+            : @[kQWeatherColor(@"#101A33"), kQWeatherColor(@"#2E4270")];
+    }
+    // 多云 / 阴天
+    if (code == 104 || code == 154) {
+        return isDay
+            ? @[kQWeatherColor(@"#5B6E88"), kQWeatherColor(@"#9FB0C4")]
+            : @[kQWeatherColor(@"#1C2534"), kQWeatherColor(@"#46566D")];
+    }
+    // 雨
+    if (code >= 300 && code <= 399) {
+        return isDay
+            ? @[kQWeatherColor(@"#37506E"), kQWeatherColor(@"#7492B2")]
+            : @[kQWeatherColor(@"#131C2A"), kQWeatherColor(@"#354A63")];
+    }
+    // 雪
+    if (code >= 400 && code <= 499) {
+        return isDay
+            ? @[kQWeatherColor(@"#5C7186"), kQWeatherColor(@"#C4D5E5")]
+            : @[kQWeatherColor(@"#1B2533"), kQWeatherColor(@"#465A70")];
+    }
+    // 雾 / 霾 / 沙尘
+    if (code >= 500 && code <= 599) {
+        return isDay
+            ? @[kQWeatherColor(@"#7A818B"), kQWeatherColor(@"#C3C8CF")]
+            : @[kQWeatherColor(@"#1E232B"), kQWeatherColor(@"#4A515B")];
+    }
+    // 夜间保留更深的底色
+    if (!isDay) {
+        return @[kQWeatherColor(@"#101A33"), kQWeatherColor(@"#354A70")];
+    }
+    return @[kQWeatherColor(@"#4A6FA5"), kQWeatherColor(@"#8FB3D9")];
+}
+
++ (UIImage *)gradientImageForWeatherCode:(NSString *)weatherCode isDay:(BOOL)isDay {
+    NSString *cacheKey = QWeatherStringFormat(@"bg_%@_%@", weatherCode ?: @"", isDay ? @"d" : @"n");
+    UIImage *cached = [[self weatherImageCache] objectForKey:cacheKey];
+    if (cached) {
+        return cached;
+    }
+
+    NSArray<UIColor *> *colors = [self gradientColorsForWeatherCode:weatherCode isDay:isDay];
+    CGSize size = CGSizeMake(80, 160);
+    UIGraphicsImageRendererFormat *format = [UIGraphicsImageRendererFormat defaultFormat];
+    format.scale = 1;
+    UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:size format:format];
+    UIImage *image = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull context) {
+        CGContextRef ctx = context.CGContext;
+        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+        NSArray *cgColors = @[(__bridge id)colors.firstObject.CGColor, (__bridge id)colors.lastObject.CGColor];
+        CGGradientRef gradient = CGGradientCreateWithColors(colorSpace, (__bridge CFArrayRef)cgColors, NULL);
+        CGContextDrawLinearGradient(ctx, gradient, CGPointZero, CGPointMake(0, size.height), 0);
+        CGGradientRelease(gradient);
+        CGColorSpaceRelease(colorSpace);
+    }];
+
+    if (image) {
+        [[self weatherImageCache] setObject:image forKey:cacheKey];
+    }
+    return image;
+}
+
++ (NSString *)symbolNameForWeatherCode:(NSString *)weatherCode isDay:(BOOL)isDay {
+    NSInteger code = weatherCode.integerValue;
+
+    if (code >= 100 && code <= 103) {
+        return isDay ? @"sun.max.fill" : @"moon.stars.fill";
+    }
+    if (code == 104 || code == 154) {
+        return @"cloud.fill";
+    }
+    if (code >= 300 && code <= 399) {
+        return code >= 310 ? @"cloud.heavyrain.fill" : @"cloud.rain.fill";
+    }
+    if (code >= 400 && code <= 499) {
+        return @"cloud.snow.fill";
+    }
+    if (code >= 500 && code <= 599) {
+        return @"cloud.fog.fill";
+    }
+    if (code >= 900 && code <= 999) {
+        return @"tornado";
+    }
+    return isDay ? @"cloud.sun.fill" : @"cloud.moon.fill";
+}
+
++ (UIImage *)symbolImageForWeatherCode:(NSString *)weatherCode isDay:(BOOL)isDay {
+    NSString *cacheKey = QWeatherStringFormat(@"icon_%@_%@", weatherCode ?: @"", isDay ? @"d" : @"n");
+    UIImage *cached = [[self weatherImageCache] objectForKey:cacheKey];
+    if (cached) {
+        return cached;
+    }
+
+    UIImageSymbolConfiguration *configuration =
+        [UIImageSymbolConfiguration configurationWithPointSize:28 weight:UIImageSymbolWeightMedium];
+    UIImage *symbol = [UIImage systemImageNamed:[self symbolNameForWeatherCode:weatherCode isDay:isDay]
+                             withConfiguration:configuration];
+    UIImage *image = [symbol imageWithTintColor:kQWeatherColor(@"#4A6FA5") renderingMode:UIImageRenderingModeAlwaysOriginal];
+
+    if (image) {
+        [[self weatherImageCache] setObject:image forKey:cacheKey];
+    }
+    return image;
 }
 +(BOOL)isDayWithStr:(NSString*)str{
     NSInteger  hour = [NSDate dateWithString:str formatString:QWeatherFormatString1].hour;

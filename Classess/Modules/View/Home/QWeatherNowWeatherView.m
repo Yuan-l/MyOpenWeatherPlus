@@ -102,11 +102,15 @@
     self.backImageView.image = [[QWeatherTool getWeatherImageWithWeatherCode:model.now.icon date:model.updateTime formatString:QWeatherBgImageFormatString] qmui_imageResizedInLimitedSize:CGSizeMake(SCREEN_WIDTH, SCREEN_HEIGHT-160-NavigationContentTop) resizingMode:QMUIImageResizingModeScaleAspectFill scale:ScreenScale];
     
     if (model.AlarmDataModel.warning.count>0) {
-        //文字
+        Warning *warning = model.AlarmDataModel.warning.firstObject;
+        // 优先使用服务端返回的 typeName，避免直接把数字类型码展示给用户
+        NSString *warningName = QWeatherStrValid(warning.typeName) ? warning.typeName : warning.type;
         if ([QWeatherManager isEnglish]) {
-            self.alarmLabel.text  = model.AlarmDataModel.warning.firstObject.type;
+            self.alarmLabel.text = warningName;
         }else{
-            self.alarmLabel.text = QWeatherStringFormat(@"%@%@",model.AlarmDataModel.warning.firstObject.type,@"预警");
+            self.alarmLabel.text = QWeatherStrValid(warningName)
+                ? QWeatherStringFormat(@"%@预警", warningName)
+                : @"气象预警";
         }
         //文字颜色
         if (QWeatherStrEqual(model.AlarmDataModel.warning.firstObject.level, @"白色")||QWeatherStrEqual(model.AlarmDataModel.warning.firstObject.level, @"White")) {
