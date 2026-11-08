@@ -10,10 +10,10 @@ Pod::Spec.new do |spec|
 
   spec.name         = "MyOpenWeatherPlus"
   spec.version      = "0.0.1"
-  spec.summary      = "A short description of MyOpenWeatherPlus."
+  spec.summary      = '和风天气业务模块：天气查询与展示'
 
   spec.description  = <<-DESC
-      "iOS创建TBCustomNetworkLogger库"
+      "和风天气业务模块：天气查询与展示，封装 QWeather SDK 与相关 UI。"
                    DESC
                    
   spec.homepage     = "https://github.com/Yuan-l/MyOpenWeatherPlus.git"
@@ -23,6 +23,8 @@ Pod::Spec.new do |spec|
   spec.author             = { "Yuan-l" => "1013540016@qq.com" }
 
   spec.source       = { :git => "https://github.com/Yuan-l/MyOpenWeatherPlus.git", :tag => spec.version.to_s }
+
+  spec.ios.deployment_target = "13.0"
 
 #  spec.subspec 'Core' do |core|
 #    core.source_files  = "Classess", "Classess/**/*.{h,m,swift}"
