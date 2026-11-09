@@ -42,6 +42,10 @@
     self.minTempLabel = [QWeatherBaseLabel new];
     self.minTempLabel.textAlignment = NSTextAlignmentRight;
     [self addSubview:self.minTempLabel];
+
+    self.humidityLabel = [QWeatherBaseLabel new];
+    self.humidityLabel.textAlignment = NSTextAlignmentRight;
+    [self addSubview:self.humidityLabel];
 }
 -(void)layoutSubviews{
     [super layoutSubviews];
@@ -59,9 +63,13 @@
         make.left.equalTo(self.mas_centerX).offset(Space_16);
         make.height.width.mas_equalTo(20);
     }];
-    [self.minTempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.humidityLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.bottom.equalTo(self);
         make.right.mas_equalTo(-Space_16);
+    }];
+    [self.minTempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.bottom.equalTo(self);
+        make.right.equalTo(self.humidityLabel.mas_left).offset(-Space_16);
     }];
     [self.maxTempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.bottom.equalTo(self);

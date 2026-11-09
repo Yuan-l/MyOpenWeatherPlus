@@ -54,6 +54,9 @@
             __block Now *now;
             __block NSArray *hourly;
             __block NSArray *daily;
+            __block NSArray *daily15;
+            __block IndicesBaseClass *indicesModel;
+            __block SunMoonBaseModel *sunMoonModel;
             __block NSString *updateTime;
             __block NSString *code;
 
@@ -83,11 +86,45 @@
             [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_WEATHER_3D WithSuccess:^(WeatherBaseClass  *responseObject) {
                 daily = responseObject.daily;
                            dispatch_group_leave(group);
-                       } faileureForError:^(NSError *err) {
+        } faileureForError:^(NSError *err) {
                 if (!requestError) { requestError = err; }
                 dispatch_group_leave(group);
             }];
-            
+            //15天预报（含 sunrise/sunset/uvIndex/humidity/windDirDay 等）
+            dispatch_group_enter(group);
+            QWeatherConfigInstance.location = [input objectForKey:@"cityId"];
+            QWeatherConfigInstance.languageType= [QWeatherManager isEnglish]?LANGUAGE_TYPE_EN:LANGUAGE_TYPE_ZH;
+            [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_WEATHER_15D WithSuccess:^(WeatherBaseClass  *responseObject) {
+                daily15 = responseObject.daily;
+                dispatch_group_leave(group);
+            } faileureForError:^(NSError *err) {
+                if (!requestError) { requestError = err; }
+                dispatch_group_leave(group);
+            }];
+            //生活指数（先设置需要的指数类型，SDK 用全局单例承载配置，保持与上面相同的串行设置模式）
+            dispatch_group_enter(group);
+            QWeatherConfigInstance.location = [input objectForKey:@"cityId"];
+            QWeatherConfigInstance.indices = @[@(INDICES_TYPE_drsg), @(INDICES_TYPE_uv), @(INDICES_TYPE_cw), @(INDICES_TYPE_spt), @(INDICES_TYPE_comf), @(INDICES_TYPE_flu)];
+            QWeatherConfigInstance.languageType= [QWeatherManager isEnglish]?LANGUAGE_TYPE_EN:LANGUAGE_TYPE_ZH;
+            [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_INDICES_1D WithSuccess:^(IndicesBaseClass  *responseObject) {
+                indicesModel = responseObject;
+                dispatch_group_leave(group);
+            } faileureForError:^(NSError *err) {
+                if (!requestError) { requestError = err; }
+                dispatch_group_leave(group);
+            }];
+            //日月信息（日出日落/月出月落/月相）
+            dispatch_group_enter(group);
+            QWeatherConfigInstance.location = [input objectForKey:@"cityId"];
+            QWeatherConfigInstance.languageType= [QWeatherManager isEnglish]?LANGUAGE_TYPE_EN:LANGUAGE_TYPE_ZH;
+            [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_SUNMOON WithSuccess:^(SunMoonBaseModel  *responseObject) {
+                sunMoonModel = responseObject;
+                dispatch_group_leave(group);
+            } faileureForError:^(NSError *err) {
+                if (!requestError) { requestError = err; }
+                dispatch_group_leave(group);
+            }];
+
             if (QWeatherStrValid([input objectForKey:@"parent_city"])) {
                 dispatch_group_enter(group);
                 QWeatherConfigInstance.location = [input objectForKey:@"parent_city"];
@@ -133,6 +170,9 @@
                         model.airDataModel = AirBaseDataModel;
                     }
                     model.daily = daily;
+                    model.daily15 = daily15;
+                    model.indicesModel = indicesModel;
+                    model.sunMoonModel = sunMoonModel;
                     model.hourly = hourly;
                     model.now = now;
                     model.updateTime = updateTime;

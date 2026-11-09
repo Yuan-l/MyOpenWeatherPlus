@@ -46,7 +46,9 @@
     }];
     [self.rowViewArray removeAllObjects];
     
-    [model.daily enumerateObjectsUsingBlock:^(Daily * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    //优先展示 15 天数据，若无则回退到 3 天数据
+    NSArray<Daily *> *dailyList = model.daily15.count > 0 ? model.daily15 : model.daily;
+    [dailyList enumerateObjectsUsingBlock:^(Daily * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         QWeatherDayWeatherRowView *view = [QWeatherDayWeatherRowView new];
         view.dayLabel.hefengFontSize = QWeatherFontSize_14;
         view.dayLabel.textColor = idx==0?QWeatherColor_212121:QWeatherColor_A4A4A4;
@@ -58,11 +60,12 @@
         [self.rowViewArray addObject:view];
     }];
     [self.rowViewArray enumerateObjectsUsingBlock:^(QWeatherDayWeatherRowView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        obj.dayLabel.text = QWeatherLocal([QWeatherTool getTimeStringWithSting:model.daily[idx].fxDate dateformat:QWeatherFormatString3 isShowToday:YES]);
-        obj.maxTempLabel.hefengTempString = model.daily[idx].tempMax;
-        obj.minTempLabel.hefengTempString = model.daily[idx].tempMin;
-        obj.dayWeatherImageView.image = [QWeatherTool getWeatherImageWithWeatherCode:model.daily[idx].iconDay isDay:YES formatString:QWeatherImageFormatString];
-        obj.nightWeatherImageView.image = [QWeatherTool getWeatherImageWithWeatherCode:model.daily[idx].iconNight isDay:NO formatString:QWeatherImageFormatString];
+        obj.dayLabel.text = QWeatherLocal([QWeatherTool getTimeStringWithSting:dailyList[idx].fxDate dateformat:QWeatherFormatString3 isShowToday:YES]);
+        obj.maxTempLabel.hefengTempString = dailyList[idx].tempMax;
+        obj.minTempLabel.hefengTempString = dailyList[idx].tempMin;
+        obj.humidityLabel.text = [NSString stringWithFormat:@"湿度%@%%", dailyList[idx].humidity];
+        obj.dayWeatherImageView.image = [QWeatherTool getWeatherImageWithWeatherCode:dailyList[idx].iconDay isDay:YES formatString:QWeatherImageFormatString];
+        obj.nightWeatherImageView.image = [QWeatherTool getWeatherImageWithWeatherCode:dailyList[idx].iconNight isDay:NO formatString:QWeatherImageFormatString];
     }];
 }
 @end

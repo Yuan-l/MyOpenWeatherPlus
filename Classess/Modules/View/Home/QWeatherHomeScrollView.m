@@ -9,6 +9,8 @@
 #import "QWeatherNowWeatherView.h"
 #import "QWeatherHourlyWeatherView.h"
 #import "QWeatherDayWeatherView.h"
+#import "TBWeatherIndicesView.h"
+#import "TBWeatherSunMoonView.h"
 #import "QWeatherTodayWeatherView.h"
 #import "QWeatherInstructionView.h"
 #import "QWeatherNowWeatherView.h"
@@ -38,6 +40,15 @@
  三日天气view
  */
 @property (nonatomic,strong) QWeatherDayWeatherView *threeDayWeatherView;
+
+/**
+ 生活指数view
+ */
+@property (nonatomic,strong) TBWeatherIndicesView *indicesView;
+/**
+ 日月信息view
+ */
+@property (nonatomic,strong) TBWeatherSunMoonView *sunMoonView;
 
 /**
  今日天气view
@@ -70,6 +81,8 @@
     [self.contentView addSubview:self.nowWeatherView];
     [self.contentView addSubview:self.hourlyWeatherView];
     [self.contentView addSubview:self.threeDayWeatherView];
+    [self.contentView addSubview:self.indicesView];
+    [self.contentView addSubview:self.sunMoonView];
     [self.contentView addSubview:self.todayWeatherView];
     [self.contentView addSubview:self.instructionView];
 
@@ -89,9 +102,19 @@
         make.left.right.mas_equalTo(0);
         make.top.equalTo(self.hourlyWeatherView.mas_bottom);
     }];
-    [self.todayWeatherView mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.indicesView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.mas_equalTo(0);
         make.top.equalTo(self.threeDayWeatherView.mas_bottom);
+        make.height.mas_equalTo(400);
+    }];
+    [self.sunMoonView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.mas_equalTo(0);
+        make.top.equalTo(self.indicesView.mas_bottom);
+        make.height.mas_equalTo(170);
+    }];
+    [self.todayWeatherView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.mas_equalTo(0);
+        make.top.equalTo(self.sunMoonView.mas_bottom);
     }];
     [self.instructionView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.mas_equalTo(0);
@@ -106,6 +129,8 @@
     [self.nowWeatherView reloadViewWithModel:dataModel];
     [self.hourlyWeatherView reloadViewWithModel:dataModel];
     [self.threeDayWeatherView reloadViewWithModel:dataModel];
+    [self.indicesView reloadViewWithModel:dataModel];
+    [self.sunMoonView reloadViewWithModel:dataModel];
     [self.todayWeatherView reloadViewWithModel:dataModel];
     [self.instructionView reloadViewWithModel:dataModel];
 }
@@ -132,6 +157,19 @@
         _threeDayWeatherView = [QWeatherDayWeatherView new];
     }
     return _threeDayWeatherView;
+}
+-(TBWeatherIndicesView *)indicesView{
+    if (!_indicesView) {
+        _indicesView = [TBWeatherIndicesView new];
+    }
+    return _indicesView;
+}
+
+-(TBWeatherSunMoonView *)sunMoonView{
+    if (!_sunMoonView) {
+        _sunMoonView = [TBWeatherSunMoonView new];
+    }
+    return _sunMoonView;
 }
 
 -(QWeatherTodayWeatherView *)todayWeatherView{

@@ -32,6 +32,18 @@ NS_ASSUME_NONNULL_BEGIN
 逐天天气
 */
 @property (nonatomic,strong) NSArray< Daily*> *daily;
+/**
+ 15天逐日天气（含 sunrise/sunset/uvIndex/humidity/windDirDay 等）
+ */
+@property (nonatomic,strong) NSArray< Daily*> *daily15;
+/**
+ 生活指数数据模型（穿衣/紫外线/洗车/运动/舒适度/感冒）
+ */
+@property (nonatomic,strong) IndicesBaseClass *indicesModel;
+/**
+ 日月数据模型（日出日落/月出月落/月相）
+ */
+@property (nonatomic,strong) SunMoonBaseModel *sunMoonModel;
 
 /**
  空气数据模型

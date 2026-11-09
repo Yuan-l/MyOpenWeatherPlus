@@ -18,6 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic,strong) UIImageView *nightWeatherImageView;
 @property (nonatomic,strong) QWeatherBaseLabel *maxTempLabel;
 @property (nonatomic,strong) QWeatherBaseLabel *minTempLabel;
+@property (nonatomic,strong) QWeatherBaseLabel *humidityLabel;
 @end
 
 NS_ASSUME_NONNULL_END
