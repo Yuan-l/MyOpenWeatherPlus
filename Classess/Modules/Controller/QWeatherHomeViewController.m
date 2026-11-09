@@ -13,6 +13,7 @@
 #import "QWeatherHomeNavView.h"
 #import "QWeatherRequest.h"
 #import "QWeatherDataManager.h"
+#import "QWeatherCityManagerViewController.h"
 #import "QWeatherTool.h"
 #import <AMapLocationKit/AMapLocationKit.h>
 #import <AMapLocationKit/AMapLocationManager.h>
@@ -67,6 +68,8 @@
     }];
     @weakify(self)
     [[QWeatherNotificationCenter rac_addObserverForName:KNotificationRefreshHomeData object:nil ]subscribeNext:^(NSNotification * _Nullable x) {
+        @strongify(self)
+        [self reloadHomeData];
         [[self.weatherRequest.upDateHomeDataCommand execute:nil] subscribeNext:^(id  _Nullable x) {
             @strongify(self)
             [self reloadHomeData];
@@ -79,6 +82,11 @@
         @strongify(self)
         [self.navigationController pushViewController:[QWeatherSearchViewController new] animated:YES];
     }];
+
+    [[self.homeNavView.locationTitleButton rac_signalForControlEvents:UIControlEventTouchUpInside] subscribeNext:^(__kindof UIControl * _Nullable x) {
+        @strongify(self)
+        [self.navigationController pushViewController:[QWeatherCityManagerViewController new] animated:YES];
+    }];
     
     [[self.homeNavView.menuButton rac_signalForControlEvents:UIControlEventTouchUpInside] subscribeNext:^(__kindof UIControl * _Nullable x) {
         @strongify(self)
@@ -86,11 +94,15 @@
     }];
     
     if (QWeatherManager.selectLocation) {
-        [self getDataWithLocation:QWeatherManager.selectLocation isLoaction:YES];
+        NSString *location = QWeatherManager.selectLocation;
+        QWeatherManager.selectLocation = nil;
+        [self getDataWithLocation:location isLoaction:YES];
     }else{
         QWeatherPostNotification(KNotificationRefreshHomeData, nil);
         if (![QWeatherTool isLocationAuthorizationStatusDenied]) {
             [self.locationManager startUpdatingLocation];
+        }else{
+            [self loadDefaultCityIfNeeded];
         }
     }
 }
@@ -103,6 +115,15 @@
 - (void)amapLocationManager:(AMapLocationManager *)manager didFailWithError:(NSError *)error{
     [self.locationManager stopUpdatingLocation];
     QWeatherLogError(@"%@",error);
+    [self loadDefaultCityIfNeeded];
+}
+
+/// 定位不可用且没有任何城市时，退回到默认城市，避免首页空白
+- (void)loadDefaultCityIfNeeded{
+    if (QWeatherManager.collectionDataArray.count > 0) {
+        return;
+    }
+    [self getDataWithLocation:@"北京" isLoaction:NO];
 }
 
 
@@ -131,14 +152,17 @@
                 x.basic = Geox.location.firstObject;
                 @strongify(self)
                 if (QWeatherStrEqual(x.code,@"200")) {
-                    [QWeatherManager addCollectionDataArrayWithModel:x isLoaction:isLoaction];
+                    BOOL added = [QWeatherManager addCityModel:x isLocation:isLoaction];
+                    if (!added) {
+                        [self showCityLimitAlert];
+                    }
+                    NSInteger index = isLoaction ? 0 : [QWeatherManager indexOfCityWithID:(x.basic.cid ?: Geox.location.firstObject.cid)];
+                    if (index != NSNotFound) {
+                        QWeatherManager.selectedCityIndex = index;
+                    }
                 }
                 else{
                     QWeatherLogError(@"%@",x.code);
-                }
-                if (isLoaction) {
-                    self.homeNavView.pageControl.currentPage = 0;
-                    [self.weatherCollectionView qmui_scrollToTop];
                 }
                 [self reloadHomeData];
             }];
@@ -146,11 +170,29 @@
     }];
 }
 -(void)reloadHomeData{
-    if (QWeatherManager.collectionDataArray.count==0) {
+    NSInteger count = QWeatherManager.collectionDataArray.count;
+    if (count == 0) {
+        [self.homeNavView setPage:0];
+        [self.weatherCollectionView reloadData];
         return;
     }
-    [self.homeNavView setPage:self.homeNavView.pageControl.currentPage];
+
+    NSInteger page = MIN(MAX(0, QWeatherManager.selectedCityIndex), count - 1);
     [self.weatherCollectionView reloadData];
+    [self.view layoutIfNeeded];
+    [self.weatherCollectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:page inSection:0]
+                                        atScrollPosition:UICollectionViewScrollPositionCenteredHorizontally
+                                                animated:NO];
+    [self.homeNavView setPage:page];
+    self.weatherCollectionView.backgroundColor = [self.homeNavView.image qmui_averageColor];
+}
+
+-(void)showCityLimitAlert{
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"城市数量已达上限"
+                                                                   message:[NSString stringWithFormat:@"最多添加 %ld 个城市，请先删除一个", (long)QWeatherManager.maxCityCount]
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"知道了" style:UIAlertActionStyleDefault handler:nil]];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 -(void)configUI{
     [self.view addSubview:self.weatherCollectionView];
@@ -206,7 +248,12 @@
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
     CGPoint point=scrollView.contentOffset;
     if (scrollView==self.weatherCollectionView) {
-        [self.homeNavView setPage:[@(point.x/scrollView.qmui_width) integerValue]];
+        NSInteger page = [@(point.x/scrollView.qmui_width) integerValue];
+        if (page < 0 || page >= (NSInteger)QWeatherManager.collectionDataArray.count) {
+            return;
+        }
+        QWeatherManager.selectedCityIndex = page;
+        [self.homeNavView setPage:page];
         self.weatherCollectionView.backgroundColor = [self.homeNavView.image qmui_averageColor];
     }
 }

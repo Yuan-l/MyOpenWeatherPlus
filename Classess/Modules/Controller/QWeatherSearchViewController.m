@@ -12,6 +12,7 @@
 #import "QWeatherCollectionCityCell.h"
 #import "QWeatherRequest.h"
 #import "QWeatherDataManager.h"
+#import "QWeatherTool.h"
 #import <YYText/YYText.h>
 
 #import "CommonMacros.h"
@@ -44,6 +45,7 @@
     self.titleView.title = QWeatherLocal(@"hengfengLocalString_36");
     [self configUI];
     [self configLayout];
+    [self reload];
 }
 -(void)configUI{
     [self.view addSubview:self.searchView];
@@ -51,37 +53,35 @@
     [self.view addSubview:self.tableView];
     [self.view addSubview:self.collectionView];
     
-    [[[self.searchView.searchTextField rac_textSignal]skip:1] subscribeNext:^(NSString * _Nullable x) {
-        self.searchText = x;
-        if (QWeatherStrValid(x)) {
-            [[self.weatherRequest.citySearchCommand execute:@{@"location":[x qmui_trimAllWhiteSpace]}] subscribeNext:^(GeoBaseClass  * x) {
-                if (x.location.count>0) {
-                    self.searchCityArray = x.location;
-                }else{
-                    self.searchCityArray = @[];
+    // 输入防抖：300ms 内的连续输入只发一次请求
+    [[[[self.searchView.searchTextField rac_textSignal] skip:1] throttle:0.3] subscribeNext:^(NSString * _Nullable x) {
+        NSString *keyword = [x qmui_trimAllWhiteSpace];
+        self.searchText = keyword;
+        if (QWeatherStrValid(keyword)) {
+            [[self.weatherRequest.citySearchCommand execute:@{@"location":keyword}] subscribeNext:^(GeoBaseClass  * result) {
+                // 结果回来时用户可能已经改了输入，丢弃过期响应
+                if (!QWeatherStrEqual(self.searchText, keyword)) {
+                    return;
                 }
-                if (self.isSelectLocatin) {
-                    self.collectionView.hidden = self.searchCityArray.count>0;
-                }
+                self.searchCityArray = result.location.count > 0 ? result.location : @[];
                 [self reload];
             } error:^(NSError * _Nullable error) {
-                NSLog(@"%@",error);
-                if (self.isSelectLocatin) {
-                    self.collectionView.hidden = NO;
+                QWeatherLogError(@"%@", error);
+                if (!QWeatherStrEqual(self.searchText, keyword)) {
+                    return;
                 }
                 self.searchCityArray = @[];
                 [self reload];
             }];
         }else{
-            if (self.isSelectLocatin) {
-                self.collectionView.hidden = NO;
-            }
             self.searchCityArray = @[];
             [self reload];
         }
     }];
 }
 -(void)reload{
+    // 没有搜索结果时展示热门城市，方便直接添加
+    self.collectionView.hidden = self.searchCityArray.count > 0;
     self.tableView.backgroundColor = self.searchCityArray.count==0?QWeatherColor_ECECEC:QWeatherColor_FAFAFA;
     [self.tableView reloadData];
     [self updateLayout];
@@ -143,13 +143,20 @@
 }
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     if (self.isSelectLocatin) {
-        QWeatherManager.selectLocation = self.searchCityArray[indexPath.row].cid;
+        if (self.searchCityArray.count > 0) {
+            QWeatherManager.selectLocation = self.searchCityArray[indexPath.row].cid;
+        }else if (indexPath.row < (NSInteger)QWeatherManager.collectionDataArray.count) {
+            QWeatherManager.selectLocation = QWeatherManager.collectionDataArray[indexPath.row].basic.name;
+        }else{
+            return;
+        }
         QWeatherPostNotification(KNotificationRestRootVC, nil);
     }else{
         if (self.searchCityArray.count>0) {
             QWeatherPostNotification(KNotificationRefreshCity,self.searchCityArray[indexPath.row].cid);
         }else{
-            QWeatherPostNotification(KNotificationRefreshCity,QWeatherManager.collectionDataArray[indexPath.row].basic.cid);
+            QWeatherManager.selectedCityIndex = indexPath.row;
+            QWeatherPostNotification(KNotificationRefreshHomeData, nil);
         }
         [self.navigationController popViewControllerAnimated:YES];
     }
@@ -238,11 +245,16 @@
 }
 
 
-// 选中某item
+// 选中热门城市
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    QWeatherManager.selectLocation = self.citysArray[indexPath.row];
-    QWeatherPostNotification(KNotificationRestRootVC, nil);
+    if (self.isSelectLocatin) {
+        QWeatherManager.selectLocation = self.citysArray[indexPath.row];
+        QWeatherPostNotification(KNotificationRestRootVC, nil);
+        return;
+    }
+    QWeatherPostNotification(KNotificationRefreshCity, self.citysArray[indexPath.row]);
+    [self.navigationController popViewControllerAnimated:YES];
 }
 -(UICollectionView *)collectionView{
     if (!_collectionView) {

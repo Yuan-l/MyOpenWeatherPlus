@@ -57,7 +57,7 @@
             __block NSString *updateTime;
             __block NSString *code;
 
-            __block NSError *error;
+            __block NSError *requestError;
             QWeatherConfigInstance.languageType= [QWeatherManager isEnglish]?LANGUAGE_TYPE_EN:LANGUAGE_TYPE_ZH;
             dispatch_group_t group = dispatch_group_create();
             dispatch_group_enter(group);
@@ -67,26 +67,26 @@
                 updateTime = responseObject.updateTime;
                 code = responseObject.code;
                 dispatch_group_leave(group);
-            } faileureForError:^(NSError *error) {
-                error = error;
+            } faileureForError:^(NSError *err) {
+                if (!requestError) { requestError = err; }
                 dispatch_group_leave(group);
             }];
             dispatch_group_enter(group);
             [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_WEATHER_24H WithSuccess:^(WeatherBaseClass  *responseObject) {
                 hourly = responseObject.hourly;
                            dispatch_group_leave(group);
-                       } faileureForError:^(NSError *error) {
-                           error = error;
-                           dispatch_group_leave(group);
-                       }];
+                       } faileureForError:^(NSError *err) {
+                if (!requestError) { requestError = err; }
+                dispatch_group_leave(group);
+            }];
             dispatch_group_enter(group);
             [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_WEATHER_3D WithSuccess:^(WeatherBaseClass  *responseObject) {
                 daily = responseObject.daily;
                            dispatch_group_leave(group);
-                       } faileureForError:^(NSError *error) {
-                           error = error;
-                           dispatch_group_leave(group);
-                       }];
+                       } faileureForError:^(NSError *err) {
+                if (!requestError) { requestError = err; }
+                dispatch_group_leave(group);
+            }];
             
             if (QWeatherStrValid([input objectForKey:@"parent_city"])) {
                 dispatch_group_enter(group);
@@ -95,10 +95,10 @@
                 [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_WEATHER_AIR_NOW WithSuccess:^(AirBaseClass  *responseObject) {
                     AirBaseDataModel = responseObject;
                     dispatch_group_leave(group);
-                } faileureForError:^(NSError *error) {
-                    error = error;
-                    dispatch_group_leave(group);
-                }];
+                } faileureForError:^(NSError *err) {
+                if (!requestError) { requestError = err; }
+                dispatch_group_leave(group);
+            }];
             }
             dispatch_group_enter(group);
             QWeatherConfigInstance.location = [input objectForKey:@"location"];
@@ -106,8 +106,8 @@
             [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_WEATHER_AIR_NOW WithSuccess:^(AirBaseClass  *responseObject) {
                 locationAirBaseDataModel = responseObject;
                 dispatch_group_leave(group);
-            } faileureForError:^(NSError *error) {
-                error = error;
+            } faileureForError:^(NSError *err) {
+                if (!requestError) { requestError = err; }
                 dispatch_group_leave(group);
             }];
             //预警
@@ -121,8 +121,8 @@
                 dispatch_group_leave(group);
             }];
             dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-                if (error) {
-                    [subscriber sendError:error];
+                if (requestError) {
+                    [subscriber sendError:requestError];
                     [subscriber sendCompleted];
                 }else{
                   
@@ -147,41 +147,48 @@
     }];
     _upDateHomeDataCommand = [[RACCommand alloc]initWithSignalBlock:^RACSignal * _Nonnull(id  _Nullable input) {
         return [RACSignal createSignal:^RACDisposable * _Nullable(id<RACSubscriber>  _Nonnull subscriber) {
-            dispatch_group_t group = dispatch_group_create();
-            NSMutableDictionary *dic = [NSMutableDictionary dictionary];
-            __block NSError *hefengError;
-            [QWeatherManager.collectionDataArray enumerateObjectsUsingBlock:^(QWeatherHomeTabelViewDataModel * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                dispatch_group_enter(group);
+            QWeatherConfigInstance.languageType = [QWeatherManager isEnglish]?LANGUAGE_TYPE_EN:LANGUAGE_TYPE_ZH;
+
+            NSArray<QWeatherHomeTabelViewDataModel *> *cities = [QWeatherManager.collectionDataArray copy];
+            if (cities.count == 0) {
+                [subscriber sendNext:@[]];
+                [subscriber sendCompleted];
+                return nil;
+            }
+
+            // 和风 SDK 用全局单例承载 location，并发刷新会互相覆盖，这里逐个城市串行请求
+            RACSignal *chain = [RACSignal return:@[]];
+            for (NSInteger idx = 0; idx < (NSInteger)cities.count; idx++) {
+                QWeatherHomeTabelViewDataModel *city = cities[idx];
                 NSMutableDictionary *param = [NSMutableDictionary dictionary];
-                param[@"cityId"] = obj.basic.cid;
-                param[@"location"] = obj.basic.name;
-                param[@"parent_city"] = obj.basic.adm2?obj.basic.adm2:@"";
-                [[[QWeatherRequest new].homeDataCommand execute:param] subscribeNext:^(QWeatherHomeTabelViewDataModel * x) {
-                    if (QWeatherStrEqual(x.code, @"200")) {
-                        [dic setObject:x forKey:@(idx)];
-                    }else{
-                        hefengError = [NSError errorWithDomain:NSURLErrorDomain code:121 userInfo:@{NSLocalizedDescriptionKey:@"x.dataModel.status"}];
-                    }
-                    dispatch_group_leave(group);
-                } error:^(NSError * _Nullable error) {
-                    hefengError = error;
-                    dispatch_group_leave(group);
-                }];
-            }];
-            dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-                if (hefengError) {
-                    [subscriber sendError:hefengError];
-                    [subscriber sendCompleted];
-                }else{
-                    NSMutableArray *array = [NSMutableArray array];
-                    [QWeatherManager.collectionDataArray enumerateObjectsUsingBlock:^(QWeatherHomeTabelViewDataModel * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                        [array addObject:[dic objectForKey:@(idx)]];
+                param[@"cityId"] = city.basic.cid ?: @"";
+                param[@"location"] = city.basic.name ?: @"";
+                param[@"parent_city"] = city.basic.adm2 ?: @"";
+
+                chain = [chain flattenMap:^RACSignal *(NSArray *results) {
+                    RACSignal *one = [[[[QWeatherRequest new] homeDataCommand] execute:param] flattenMap:^RACSignal *(QWeatherHomeTabelViewDataModel *x) {
+                        if (!QWeatherStrEqual(x.code, @"200")) {
+                            // 单个城市失败时保留旧数据，不影响其它城市刷新
+                            return [RACSignal return:[results arrayByAddingObject:city]];
+                        }
+                        x.basic = city.basic;
+                        return [RACSignal return:[results arrayByAddingObject:x]];
                     }];
-                    [QWeatherManager updateCollectionDataArrayWithArray:array];
-                    [subscriber sendNext:array];
-                    [subscriber sendCompleted];
-                }
-            });
+                    return [one catch:^RACSignal *(NSError *error) {
+                        return [RACSignal return:[results arrayByAddingObject:city]];
+                    }];
+                }];
+            }
+
+            [chain subscribeNext:^(NSArray *results) {
+                [QWeatherManager updateCollectionDataArrayWithArray:results];
+                [subscriber sendNext:results];
+            } error:^(NSError *error) {
+                [subscriber sendError:error];
+                [subscriber sendCompleted];
+            } completed:^{
+                [subscriber sendCompleted];
+            }];
             return nil;
         }];
     }];

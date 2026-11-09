@@ -31,6 +31,11 @@ SINGLETON_FOR_HEADER(QWeatherDataManager)
 @property (nonatomic,assign) BOOL isFirstOpenApp;
 @property (nonatomic,copy) NSString *selectLocation;
 
+/// 当前展示的城市下标（持久化，越界自动收敛）
+@property (nonatomic,assign) NSInteger selectedCityIndex;
+
+/// 城市数量上限
+@property (nonatomic,readonly) NSInteger maxCityCount;
 
 
 /**
@@ -41,6 +46,21 @@ SINGLETON_FOR_HEADER(QWeatherDataManager)
 
  */
 -(void)addCollectionDataArrayWithModel:(QWeatherHomeTabelViewDataModel *)model isLoaction:(BOOL)isLoaction;
+
+/**
+ 添加城市（返回是否成功；超过上限返回 NO，不再静默丢弃）
+ */
+-(BOOL)addCityModel:(QWeatherHomeTabelViewDataModel *)model isLocation:(BOOL)isLocation;
+
+/**
+ 调整城市顺序
+ */
+-(BOOL)moveCityFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex;
+
+/**
+ 按城市 ID 查找下标，未找到返回 NSNotFound
+ */
+-(NSInteger)indexOfCityWithID:(NSString *)cid;
 
 /**
  删除城市数据
