@@ -38,12 +38,13 @@
         make.edges.equalTo(self);
         make.height.equalTo(self);
     }];
-    [self.xLabelsArray mas_distributeViewsAlongAxis:MASAxisTypeHorizontal withFixedSpacing:20 leadSpacing:0 tailSpacing:0];
-    [self.xLabelsArray mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.mas_equalTo(-Space_16);
-        make.width.greaterThanOrEqualTo(@60);
-    }];
-}
+    if (self.xLabelsArray.count > 0) {
+        [self.xLabelsArray mas_distributeViewsAlongAxis:MASAxisTypeHorizontal withFixedSpacing:20 leadSpacing:0 tailSpacing:0];
+        [self.xLabelsArray mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.mas_equalTo(-Space_16);
+            make.width.greaterThanOrEqualTo(@60);
+        }];
+    }}
 -(void)scrollTempLabel{
     @weakify(self)
     [RACObserve(self, contentOffset) subscribeNext:^(id  _Nullable x) {

@@ -114,16 +114,33 @@
                 dispatch_group_leave(group);
             }];
             //日月信息（日出日落/月出月落/月相）
-            dispatch_group_enter(group);
-            QWeatherConfigInstance.location = [input objectForKey:@"cityId"];
-            QWeatherConfigInstance.languageType= [QWeatherManager isEnglish]?LANGUAGE_TYPE_EN:LANGUAGE_TYPE_ZH;
-            [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_SUNMOON WithSuccess:^(SunMoonBaseModel  *responseObject) {
-                sunMoonModel = responseObject;
-                dispatch_group_leave(group);
-            } faileureForError:^(NSError *err) {
-                // 日月信息为可选数据，失败不影响天气主数据
-                dispatch_group_leave(group);
-            }];
+            //和风天文接口要求 lat/lon/tz/date 必填，SDK 内部用这些值拼参数，
+            //缺任意一项会在 SDK 的 setObject:forKey: 处直接抛异常（无法在调用侧 try/catch）。
+            //因此拿不到坐标时直接跳过该可选请求，界面回退到 15 天预报里的日出日落。
+            NSString *sunMoonLat = [input objectForKey:@"lat"];
+            NSString *sunMoonLon = [input objectForKey:@"lon"];
+            NSString *sunMoonTz  = [input objectForKey:@"tz"];
+            if (QWeatherStrValid(sunMoonLat) && QWeatherStrValid(sunMoonLon) && QWeatherStrValid(sunMoonTz)) {
+                dispatch_group_enter(group);
+                NSDateFormatter *sunMoonFormatter = [[NSDateFormatter alloc] init];
+                sunMoonFormatter.dateFormat = @"yyyyMMdd";
+                sunMoonFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+                QWeatherConfigInstance.location = [input objectForKey:@"cityId"];
+                QWeatherConfigInstance.languageType= [QWeatherManager isEnglish]?LANGUAGE_TYPE_EN:LANGUAGE_TYPE_ZH;
+                QWeatherConfigInstance.lat = sunMoonLat;
+                QWeatherConfigInstance.lon = sunMoonLon;
+                QWeatherConfigInstance.tz = sunMoonTz;
+                QWeatherConfigInstance.alt = @"0";
+                QWeatherConfigInstance.date = [sunMoonFormatter stringFromDate:[NSDate date]];
+                QWeatherConfigInstance.time = @"1200";
+                [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_SUNMOON WithSuccess:^(SunMoonBaseModel  *responseObject) {
+                    sunMoonModel = responseObject;
+                    dispatch_group_leave(group);
+                } faileureForError:^(NSError *err) {
+                    // 日月信息为可选数据，失败不影响天气主数据
+                    dispatch_group_leave(group);
+                }];
+            }
 
             if (QWeatherStrValid([input objectForKey:@"parent_city"])) {
                 dispatch_group_enter(group);
@@ -204,6 +221,9 @@
                 param[@"cityId"] = city.basic.cid ?: @"";
                 param[@"location"] = city.basic.name ?: @"";
                 param[@"parent_city"] = city.basic.adm2 ?: @"";
+                param[@"lat"] = city.basic.lat ?: @"";
+                param[@"lon"] = city.basic.lon ?: @"";
+                param[@"tz"] = city.basic.tz ?: @"";
 
                 chain = [chain flattenMap:^RACSignal *(NSArray *results) {
                     RACSignal *one = [[[[QWeatherRequest new] homeDataCommand] execute:param] flattenMap:^RACSignal *(QWeatherHomeTabelViewDataModel *x) {

@@ -76,6 +76,7 @@
 
 @interface TBWeatherIndicesView()
 @property (nonatomic,strong) NSMutableArray<TBWeatherIndicesRowView*> *rowViewArray;
+@property (nonatomic,assign) BOOL didDistribute;
 @end
 
 @implementation TBWeatherIndicesView
@@ -89,6 +90,9 @@
 }
 -(void)layoutSubviews{
     [super layoutSubviews];
+    // 生活指数为可选数据：拉取失败时数组为空，Masonry 分布约束会直接抛异常
+    if (self.rowViewArray.count == 0 || self.didDistribute) { return; }
+    self.didDistribute = YES;
     [self.rowViewArray mas_distributeViewsAlongAxis:MASAxisTypeVertical withFixedSpacing:16 leadSpacing:Space_16 tailSpacing:Space_16];
     [self.rowViewArray mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.mas_equalTo(0);
@@ -99,6 +103,7 @@
         [obj removeFromSuperview];
     }];
     [self.rowViewArray removeAllObjects];
+    self.didDistribute = NO;
 
     if (!QWeatherValidArray(model.indicesModel.daily)) {
         return;
@@ -128,5 +133,6 @@
         row.levelLabel.text = obj.level;
         row.textLabel.text = obj.text;
     }];
+    [self setNeedsLayout];
 }
 @end

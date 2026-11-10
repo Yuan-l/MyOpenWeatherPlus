@@ -148,6 +148,10 @@
             param[@"cityId"] = Geox.location.firstObject.cid;
             param[@"location"] = Geox.location.firstObject.name;
             param[@"parent_city"] = Geox.location.firstObject.adm2?Geox.location.firstObject.adm2:@"";
+            //日月接口必填（SDK 参数拼装需要，缺失会崩溃）
+            param[@"lat"] = Geox.location.firstObject.lat ?: @"";
+            param[@"lon"] = Geox.location.firstObject.lon ?: @"";
+            param[@"tz"] = Geox.location.firstObject.tz ?: @"";
             [[self.weatherRequest.homeDataCommand execute:param] subscribeNext:^(QWeatherHomeTabelViewDataModel  * x) {
                 x.basic = Geox.location.firstObject;
                 @strongify(self)
@@ -219,12 +223,12 @@
 }
 // 每个分区上得元素个数
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return QWeatherManager.collectionDataArray.count;
+    return MAX(1, QWeatherManager.collectionDataArray.count);
 }
 // 设置cell
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     QWeatherHomeCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([QWeatherHomeCollectionViewCell class]) forIndexPath:indexPath];
-    cell.scrollView.dataModel = QWeatherManager.collectionDataArray[indexPath.row];
+    cell.scrollView.dataModel = QWeatherManager.collectionDataArray.count > indexPath.row ? QWeatherManager.collectionDataArray[indexPath.row] : nil;
     return cell;
 }
 
