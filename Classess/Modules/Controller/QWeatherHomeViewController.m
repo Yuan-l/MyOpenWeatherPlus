@@ -58,6 +58,19 @@
     [self configUI];
     [self configLayout];
     [self addNotice];
+
+#if DEBUG
+    // 真机无点击自动化时，用 TB_AUTO_CITY=1 自动进入城市搜索页，校验标题/返回按钮位置
+    if ([[[NSProcessInfo processInfo] environment][@"TB_AUTO_CITY"] isEqualToString:@"1"]) {
+        __weak typeof(self) wself = self;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            __strong typeof(wself) sself = wself;
+            if (sself.navigationController.topViewController == sself) {
+                [sself.navigationController pushViewController:[QWeatherSearchViewController new] animated:YES];
+            }
+        });
+    }
+#endif
 }
 
 -(void)addNotice{
@@ -277,6 +290,22 @@
     }];
 }
 #pragma mark - 代理方法 Delegate Methods
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    // QMUICollectionViewPagingLayout 会缓存首次算出的 itemSize，
+    // 若首次布局时 collectionView 还没被 cityBar 下推，item 高度会大于可视区域，
+    // 导致 15 天预报等底部内容被裁掉。这里在尺寸变化后强制刷新一次。
+    UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.weatherCollectionView.collectionViewLayout;
+    CGSize size = self.weatherCollectionView.bounds.size;
+    if (!layout || size.width <= 0 || size.height <= 0) {
+        return;
+    }
+    if (!CGSizeEqualToSize(layout.itemSize, size)) {
+        layout.itemSize = size;
+        [layout invalidateLayout];
+    }
+}
+
 // 设置分区
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
     return 1;
