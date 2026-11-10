@@ -55,12 +55,27 @@
     self.stateLabel.hidden = YES;
 }
 - (NSArray *)imagesWithGif:(NSString *)gifNameInBoundle {
+    // Check if GIF resource exists before trying to load it
     NSURL *fileUrl = [[NSBundle mainBundle] URLForResource:gifNameInBoundle withExtension:@"gif"];
+    if (!fileUrl) {
+        // GIF resource not found, return empty array instead of crashing
+        return @[];
+    }
+    
     CGImageSourceRef gifSource = CGImageSourceCreateWithURL((CFURLRef)fileUrl, NULL);
+    if (!gifSource) {
+        return @[];
+    }
+    
     size_t gifCount = CGImageSourceGetCount(gifSource);
+    if (gifCount == 0) {
+        return @[];
+    }
+    
     NSMutableArray *images = [[NSMutableArray alloc]init];
     for (size_t i = 0; i< gifCount; i++) {
         CGImageRef imageRef = CGImageSourceCreateImageAtIndex(gifSource, i, NULL);
+        if (!imageRef) continue;
         UIImage *image = [UIImage imageWithCGImage:imageRef];
         [images addObject:image];
         CGImageRelease(imageRef);

@@ -105,7 +105,7 @@
     [self.indicesView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.mas_equalTo(0);
         make.top.equalTo(self.threeDayWeatherView.mas_bottom);
-        make.height.mas_equalTo(400);
+        make.height.mas_equalTo(470);
     }];
     [self.sunMoonView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.mas_equalTo(0);
@@ -129,7 +129,7 @@
     // 可选区块没有数据时把高度收为 0，避免出现大块空白
     BOOL hasIndices = QWeatherValidArray(dataModel.indicesModel.daily);
     [self.indicesView mas_updateConstraints:^(MASConstraintMaker *make) {
-        make.height.mas_equalTo(hasIndices ? 400 : 0);
+        make.height.mas_equalTo(hasIndices ? 470 : 0);
     }];
     BOOL hasSunMoon = QWeatherStrValid(dataModel.sunMoonModel.sunrise) ||
                       QWeatherStrValid(dataModel.daily15.firstObject.sunrise);

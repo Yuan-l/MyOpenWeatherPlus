@@ -27,6 +27,22 @@
 @property (nonatomic,strong) QWeatherBaseLabel *moonPhaseLabel;
 @end
 
+/// 和风返回的时间形如 2026-11-11T06:55+08:00，界面只展示 HH:mm
+static NSString *TBWeatherSunMoonTimeText(NSString *raw) {
+    if (!QWeatherStrValid(raw)) {
+        return @"--";
+    }
+    NSRange t = [raw rangeOfString:@"T"];
+    if (t.location == NSNotFound) {
+        return raw;
+    }
+    NSString *rest = [raw substringFromIndex:t.location + 1];
+    if (rest.length >= 5) {
+        return [rest substringToIndex:5];
+    }
+    return rest;
+}
+
 @implementation TBWeatherSunMoonView
 -(instancetype)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];
@@ -156,10 +172,10 @@
         moonPhaseName = today.moonPhase;
     }
 
-    self.sunriseValueLabel.text = QWeatherStrValid(sunrise) ? sunrise : @"--";
-    self.sunsetValueLabel.text = QWeatherStrValid(sunset) ? sunset : @"--";
-    self.moonriseValueLabel.text = QWeatherStrValid(moonrise) ? moonrise : @"--";
-    self.moonsetValueLabel.text = QWeatherStrValid(moonset) ? moonset : @"--";
+    self.sunriseValueLabel.text = TBWeatherSunMoonTimeText(sunrise);
+    self.sunsetValueLabel.text = TBWeatherSunMoonTimeText(sunset);
+    self.moonriseValueLabel.text = TBWeatherSunMoonTimeText(moonrise);
+    self.moonsetValueLabel.text = TBWeatherSunMoonTimeText(moonset);
     self.moonPhaseLabel.text = QWeatherStrValid(moonPhaseName) ? [NSString stringWithFormat:@"当前月相：%@", moonPhaseName] : @"当前月相：--";
 }
 @end

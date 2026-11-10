@@ -40,12 +40,16 @@
     // 15 天/3 天预报均可能在降级后为空，空数组不能做 Masonry 分布
     if (self.rowViewArray.count == 0 || self.didDistribute) { return; }
     self.didDistribute = YES;
-    [self.rowViewArray mas_distributeViewsAlongAxis:MASAxisTypeVertical withFixedSpacing:30 leadSpacing:Space_16 tailSpacing:Space_16];
-    TBWeatherLayoutOnce(self, @"constraints", ^{
-        [self.rowViewArray mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.right.mas_equalTo(0);
-        }];
-    });
+    // 行高必须显式给定：mas_distributeViewsAlongAxis 只负责首尾与间距，
+    // 纯 UIView 没有 intrinsicContentSize，不写高度会全部塌成 0（15 天预报看不见）。
+    CGFloat rowHeight = 28;
+    CGFloat spacing = self.rowViewArray.count > 8 ? 4 : 12;
+    [self.rowViewArray mas_distributeViewsAlongAxis:MASAxisTypeVertical withFixedSpacing:spacing leadSpacing:Space_16 tailSpacing:Space_16];
+    // didDistribute 已保证只执行一次，这里直接补宽高
+    [self.rowViewArray mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.mas_equalTo(0);
+        make.height.mas_equalTo(rowHeight);
+    }];
 }
 -(void)reloadViewWithModel:(QWeatherHomeTabelViewDataModel *)model{
     [self.rowViewArray enumerateObjectsUsingBlock:^(QWeatherDayWeatherRowView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
