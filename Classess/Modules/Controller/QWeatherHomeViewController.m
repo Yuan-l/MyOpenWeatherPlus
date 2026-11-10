@@ -14,6 +14,7 @@
 #import "QWeatherRequest.h"
 #import "QWeatherDataManager.h"
 #import "QWeatherCityManagerViewController.h"
+#import "TBWeatherCityBar.h"
 #import "QWeatherTool.h"
 #import <AMapLocationKit/AMapLocationKit.h>
 #import <AMapLocationKit/AMapLocationManager.h>
@@ -31,6 +32,7 @@
 @interface QWeatherHomeViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,AMapLocationManagerDelegate>
 @property (nonatomic,strong) UICollectionView *weatherCollectionView;
 @property (nonatomic,strong) QWeatherHomeNavView *homeNavView;
+@property (nonatomic,strong) TBWeatherCityBar *cityBar;
 @property (nonatomic,strong) QWeatherRequest *weatherRequest;
 @property (nonatomic,strong) AMapLocationManager *locationManager;
 @end
@@ -87,6 +89,20 @@
         @strongify(self)
         [self.navigationController pushViewController:[QWeatherCityManagerViewController new] animated:YES];
     }];
+
+    // 城市切换条：点击切换、点「＋」添加、长按进入管理
+    self.cityBar.onSelect = ^(NSInteger index) {
+        @strongify(self)
+        [self switchToCityIndex:index];
+    };
+    self.cityBar.onAdd = ^{
+        @strongify(self)
+        [self.navigationController pushViewController:[QWeatherSearchViewController new] animated:YES];
+    };
+    self.cityBar.onManage = ^{
+        @strongify(self)
+        [self.navigationController pushViewController:[QWeatherCityManagerViewController new] animated:YES];
+    };
     
     [[self.homeNavView.menuButton rac_signalForControlEvents:UIControlEventTouchUpInside] subscribeNext:^(__kindof UIControl * _Nullable x) {
         @strongify(self)
@@ -177,6 +193,7 @@
     NSInteger count = QWeatherManager.collectionDataArray.count;
     if (count == 0) {
         [self.homeNavView setPage:0];
+        [self.cityBar reloadWithCityNames:@[] selectedIndex:0];
         [self.weatherCollectionView reloadData];
         return;
     }
@@ -188,7 +205,44 @@
                                         atScrollPosition:UICollectionViewScrollPositionCenteredHorizontally
                                                 animated:NO];
     [self.homeNavView setPage:page];
-    self.weatherCollectionView.backgroundColor = [self.homeNavView.image qmui_averageColor];
+    [self syncCityBarWithPage:page];
+    [self applyBackgroundColor];
+}
+
+/// 城市切换条与当前页保持同步
+-(void)syncCityBarWithPage:(NSInteger)page{
+    NSMutableArray<NSString *> *names = [NSMutableArray array];
+    for (QWeatherHomeTabelViewDataModel *model in QWeatherManager.collectionDataArray) {
+        [names addObject:model.basic.name ?: @"--"];
+    }
+    [self.cityBar reloadWithCityNames:names selectedIndex:page];
+}
+
+/// 顶部导航区与列表共用天气背景色，避免白底白字看不见城市名
+-(void)applyBackgroundColor{
+    UIColor *bg = [self.homeNavView.image qmui_averageColor];
+    if (!bg) {
+        return;
+    }
+    self.view.backgroundColor = bg;
+    self.homeNavView.backgroundColor = bg;
+    self.cityBar.backgroundColor = bg;
+    self.weatherCollectionView.backgroundColor = bg;
+}
+
+/// 点击城市 chip 切换到对应页
+-(void)switchToCityIndex:(NSInteger)index{
+    NSInteger count = QWeatherManager.collectionDataArray.count;
+    if (index < 0 || index >= count) {
+        return;
+    }
+    QWeatherManager.selectedCityIndex = index;
+    [self.weatherCollectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]
+                                        atScrollPosition:UICollectionViewScrollPositionCenteredHorizontally
+                                                animated:YES];
+    [self.homeNavView setPage:index];
+    [self.cityBar updateSelectedIndex:index];
+    [self applyBackgroundColor];
 }
 
 -(void)showCityLimitAlert{
@@ -201,6 +255,7 @@
 -(void)configUI{
     [self.view addSubview:self.weatherCollectionView];
     [self.view addSubview:self.homeNavView];
+    [self.view addSubview:self.cityBar];
     [self.homeNavView setPage:self.homeNavView.pageControl.currentPage];
     self.weatherCollectionView.backgroundColor = [self.homeNavView.image qmui_averageColor];
 }
@@ -210,10 +265,15 @@
         make.top.equalTo(self.view.mas_top);
         make.bottom.equalTo(self.view.mas_safeAreaLayoutGuideTop).offset(44);
     }];
+    [self.cityBar mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.trailing.equalTo(self.view);
+        make.top.equalTo(self.homeNavView.mas_bottom);
+        make.height.mas_equalTo(38);
+    }];
     [self.weatherCollectionView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.trailing.equalTo(self.view);
         make.bottom.equalTo(self.view.mas_safeAreaLayoutGuideBottom);
-        make.top.equalTo(self.homeNavView.mas_bottom);
+        make.top.equalTo(self.cityBar.mas_bottom).offset(2);
     }];
 }
 #pragma mark - 代理方法 Delegate Methods
@@ -250,16 +310,35 @@
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
-    CGPoint point=scrollView.contentOffset;
-    if (scrollView==self.weatherCollectionView) {
-        NSInteger page = [@(point.x/scrollView.qmui_width) integerValue];
-        if (page < 0 || page >= (NSInteger)QWeatherManager.collectionDataArray.count) {
-            return;
-        }
-        QWeatherManager.selectedCityIndex = page;
-        [self.homeNavView setPage:page];
-        self.weatherCollectionView.backgroundColor = [self.homeNavView.image qmui_averageColor];
+    [self syncPageWithScrollView:scrollView];
+}
+
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView{
+    [self syncPageWithScrollView:scrollView];
+}
+
+/// 分页布局（QMUI scale 样式）下 contentOffset / width 并不等于页码，
+/// 用「屏幕中心点落在哪个 cell」来判定当前页，避免切页后高亮/标题错位。
+- (void)syncPageWithScrollView:(UIScrollView *)scrollView{
+    if (scrollView != self.weatherCollectionView) {
+        return;
     }
+    NSInteger count = QWeatherManager.collectionDataArray.count;
+    if (count == 0) {
+        return;
+    }
+    CGPoint center = CGPointMake(scrollView.contentOffset.x + scrollView.qmui_width / 2.0, scrollView.qmui_height / 2.0);
+    NSIndexPath *indexPath = [self.weatherCollectionView indexPathForItemAtPoint:center];
+    NSInteger page = indexPath ? indexPath.item : QWeatherManager.selectedCityIndex;
+    page = MIN(MAX(0, page), count - 1);
+    if (page == QWeatherManager.selectedCityIndex) {
+        [self.cityBar updateSelectedIndex:page];
+        return;
+    }
+    QWeatherManager.selectedCityIndex = page;
+    [self.homeNavView setPage:page];
+    [self.cityBar updateSelectedIndex:page];
+    [self applyBackgroundColor];
 }
 
 -(UICollectionView *)weatherCollectionView{
@@ -286,6 +365,12 @@
         _homeNavView = [QWeatherHomeNavView new];
     }
     return _homeNavView;
+}
+-(TBWeatherCityBar *)cityBar{
+    if (!_cityBar) {
+        _cityBar = [TBWeatherCityBar new];
+    }
+    return _cityBar;
 }
 -(QWeatherRequest *)weatherRequest{
     if (!_weatherRequest) {
