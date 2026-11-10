@@ -13,6 +13,7 @@
 #import "UtilsMacros.h"
 #import <Masonry/Masonry.h>
 #import <QMUIKit/QMUIKit.h>
+#import "TBWeatherLayout.h"
 
 @interface TBWeatherSunMoonView()
 @property (nonatomic,strong) QWeatherBaseLabel *sunriseTitleLabel;
@@ -79,52 +80,54 @@
 -(void)layoutSubviews{
     [super layoutSubviews];
     //两列布局：左列日出/月出，右列日落/月落
-    [self.sunriseTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(Space_16);
-        make.top.mas_equalTo(Space_16);
-        make.height.mas_equalTo(20);
-    }];
-    [self.sunriseValueLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.sunriseTitleLabel);
-        make.top.equalTo(self.sunriseTitleLabel.mas_bottom).offset(4);
-        make.height.mas_equalTo(24);
-    }];
-    [self.sunsetTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.mas_centerX).offset(Space_16);
-        make.top.equalTo(self.sunriseTitleLabel);
-        make.height.mas_equalTo(20);
-    }];
-    [self.sunsetValueLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.sunsetTitleLabel);
-        make.top.equalTo(self.sunriseValueLabel);
-        make.height.mas_equalTo(24);
-    }];
-    [self.moonriseTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.sunriseTitleLabel);
-        make.top.equalTo(self.sunriseValueLabel.mas_bottom).offset(Space_16);
-        make.height.mas_equalTo(20);
-    }];
-    [self.moonriseValueLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.sunriseTitleLabel);
-        make.top.equalTo(self.moonriseTitleLabel.mas_bottom).offset(4);
-        make.height.mas_equalTo(24);
-    }];
-    [self.moonsetTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.sunsetTitleLabel);
-        make.top.equalTo(self.moonriseTitleLabel);
-        make.height.mas_equalTo(20);
-    }];
-    [self.moonsetValueLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.sunsetTitleLabel);
-        make.top.equalTo(self.moonriseValueLabel);
-        make.height.mas_equalTo(24);
-    }];
-    [self.moonPhaseLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(Space_16);
-        make.right.mas_equalTo(-Space_16);
-        make.top.equalTo(self.moonriseValueLabel.mas_bottom).offset(Space_16);
-        make.height.mas_equalTo(20);
-    }];
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.sunriseTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(Space_16);
+            make.top.mas_equalTo(Space_16);
+            make.height.mas_equalTo(20);
+        }];
+        [self.sunriseValueLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.sunriseTitleLabel);
+            make.top.equalTo(self.sunriseTitleLabel.mas_bottom).offset(4);
+            make.height.mas_equalTo(24);
+        }];
+        [self.sunsetTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.mas_centerX).offset(Space_16);
+            make.top.equalTo(self.sunriseTitleLabel);
+            make.height.mas_equalTo(20);
+        }];
+        [self.sunsetValueLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.sunsetTitleLabel);
+            make.top.equalTo(self.sunriseValueLabel);
+            make.height.mas_equalTo(24);
+        }];
+        [self.moonriseTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.sunriseTitleLabel);
+            make.top.equalTo(self.sunriseValueLabel.mas_bottom).offset(Space_16);
+            make.height.mas_equalTo(20);
+        }];
+        [self.moonriseValueLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.sunriseTitleLabel);
+            make.top.equalTo(self.moonriseTitleLabel.mas_bottom).offset(4);
+            make.height.mas_equalTo(24);
+        }];
+        [self.moonsetTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.sunsetTitleLabel);
+            make.top.equalTo(self.moonriseTitleLabel);
+            make.height.mas_equalTo(20);
+        }];
+        [self.moonsetValueLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.sunsetTitleLabel);
+            make.top.equalTo(self.moonriseValueLabel);
+            make.height.mas_equalTo(24);
+        }];
+        [self.moonPhaseLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(Space_16);
+            make.right.mas_equalTo(-Space_16);
+            make.top.equalTo(self.moonriseValueLabel.mas_bottom).offset(Space_16);
+            make.height.mas_equalTo(20);
+        }];
+    });
 }
 -(void)reloadViewWithModel:(QWeatherHomeTabelViewDataModel *)model{
     NSString *sunrise = nil;

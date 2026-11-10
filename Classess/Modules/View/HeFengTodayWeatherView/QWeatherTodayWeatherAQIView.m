@@ -13,6 +13,7 @@
 #import <QMUIKit/QMUIKit.h>
 #import <Masonry/Masonry.h>
 #import <YYText/YYText.h>
+#import "TBWeatherLayout.h"
 
 @implementation QWeatherTodayWeatherAQIView
 {
@@ -52,56 +53,58 @@
 }
 -(void)layoutSubviews{
     [super layoutSubviews];
-    [self.line mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(@Space_16);
-        make.right.equalTo(@(-Space_16));
-        make.top.mas_equalTo(0);
-        make.height.equalTo(@1);
-    }];
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.line mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(@Space_16);
+            make.right.equalTo(@(-Space_16));
+            make.top.mas_equalTo(0);
+            make.height.equalTo(@1);
+        }];
     
-    [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(@Space_16);
-        make.top.equalTo(self.line.mas_bottom).offset(Space_24);
-    }];
+        [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(@Space_16);
+            make.top.equalTo(self.line.mas_bottom).offset(Space_24);
+        }];
     
-    [self.aqiLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.titleLabel.mas_right).offset(Space_16);
-        make.centerY.equalTo(self.titleLabel);
-    }];
-    [self.aqiBackView mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.edges.equalTo(self.aqiLabel).offset(UIEdgeInsetsMake(0, -5, 0, -5));
-        make.edges.equalTo(self.aqiLabel).insets(UIEdgeInsetsMake(0, -5, 0, -5));
-    }];
-    [self.itemViewArray[0] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(@Space_32);
-        make.top.equalTo(self.titleLabel.mas_bottom).offset(Space_24);
-    }];
-    [self.itemViewArray[1] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.mas_equalTo(0);
-        make.top.equalTo(self.itemViewArray[0]);
-        make.height.width.equalTo(self.itemViewArray[0]);
-    }];
-    [self.itemViewArray[2] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(@(-Space_32));
-        make.top.equalTo(self.itemViewArray[0]);
-        make.height.width.equalTo(self.itemViewArray[0]);
-    }];
-    [self.itemViewArray[3] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(@Space_32);
-        make.top.equalTo(self.itemViewArray[0].mas_bottom).offset(Space_24);
-        make.height.width.equalTo(self.itemViewArray[0]);
-    }];
-    [self.itemViewArray[4] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.mas_equalTo(0);
-        make.top.equalTo(self.itemViewArray[0].mas_bottom).offset(Space_24);
-        make.height.width.equalTo(self.itemViewArray[0]);
-    }];
-    [self.itemViewArray[5] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(@(-Space_32));
-        make.top.equalTo(self.itemViewArray[0].mas_bottom).offset(Space_24);
-        make.height.width.equalTo(self.itemViewArray[0]);
-        make.bottom.equalTo(@(-Space_16));
-    }];
+        [self.aqiLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.titleLabel.mas_right).offset(Space_16);
+            make.centerY.equalTo(self.titleLabel);
+        }];
+        [self.aqiBackView mas_makeConstraints:^(MASConstraintMaker *make) {
+    //        make.edges.equalTo(self.aqiLabel).offset(UIEdgeInsetsMake(0, -5, 0, -5));
+            make.edges.equalTo(self.aqiLabel).insets(UIEdgeInsetsMake(0, -5, 0, -5));
+        }];
+        [self.itemViewArray[0] mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(@Space_32);
+            make.top.equalTo(self.titleLabel.mas_bottom).offset(Space_24);
+        }];
+        [self.itemViewArray[1] mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerX.mas_equalTo(0);
+            make.top.equalTo(self.itemViewArray[0]);
+            make.height.width.equalTo(self.itemViewArray[0]);
+        }];
+        [self.itemViewArray[2] mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.equalTo(@(-Space_32));
+            make.top.equalTo(self.itemViewArray[0]);
+            make.height.width.equalTo(self.itemViewArray[0]);
+        }];
+        [self.itemViewArray[3] mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(@Space_32);
+            make.top.equalTo(self.itemViewArray[0].mas_bottom).offset(Space_24);
+            make.height.width.equalTo(self.itemViewArray[0]);
+        }];
+        [self.itemViewArray[4] mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerX.mas_equalTo(0);
+            make.top.equalTo(self.itemViewArray[0].mas_bottom).offset(Space_24);
+            make.height.width.equalTo(self.itemViewArray[0]);
+        }];
+        [self.itemViewArray[5] mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.equalTo(@(-Space_32));
+            make.top.equalTo(self.itemViewArray[0].mas_bottom).offset(Space_24);
+            make.height.width.equalTo(self.itemViewArray[0]);
+            make.bottom.equalTo(@(-Space_16));
+        }];
+    });
 }
 -(void)reloadViewWithModel:(QWeatherHomeTabelViewDataModel *)model{
     NSArray *numbArray;

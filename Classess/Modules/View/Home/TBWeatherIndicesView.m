@@ -13,6 +13,7 @@
 #import "UtilsMacros.h"
 #import <Masonry/Masonry.h>
 #import <QMUIKit/QMUIKit.h>
+#import "TBWeatherLayout.h"
 
 @interface TBWeatherIndicesRowView : QWeatherBaseView
 @property (nonatomic,strong) QWeatherBaseLabel *iconLabel;
@@ -50,28 +51,30 @@
 }
 -(void)layoutSubviews{
     [super layoutSubviews];
-    [self.iconLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(Space_16);
-        make.top.mas_equalTo(8);
-        make.width.mas_equalTo(30);
-        make.height.mas_equalTo(20);
-    }];
-    [self.nameLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.iconLabel.mas_right).offset(Space_16);
-        make.top.mas_equalTo(8);
-        make.right.equalTo(self.levelLabel.mas_left).offset(-Space_16);
-    }];
-    [self.levelLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.mas_equalTo(-Space_16);
-        make.top.mas_equalTo(8);
-        make.height.mas_equalTo(20);
-    }];
-    [self.textLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.nameLabel.mas_left);
-        make.right.mas_equalTo(-Space_16);
-        make.top.equalTo(self.nameLabel.mas_bottom).offset(4);
-        make.height.mas_greaterThanOrEqualTo(20);
-    }];}
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.iconLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(Space_16);
+            make.top.mas_equalTo(8);
+            make.width.mas_equalTo(30);
+            make.height.mas_equalTo(20);
+        }];
+        [self.nameLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.iconLabel.mas_right).offset(Space_16);
+            make.top.mas_equalTo(8);
+            make.right.equalTo(self.levelLabel.mas_left).offset(-Space_16);
+        }];
+        [self.levelLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.mas_equalTo(-Space_16);
+            make.top.mas_equalTo(8);
+            make.height.mas_equalTo(20);
+        }];
+        [self.textLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.nameLabel.mas_left);
+            make.right.mas_equalTo(-Space_16);
+            make.top.equalTo(self.nameLabel.mas_bottom).offset(4);
+            make.height.mas_greaterThanOrEqualTo(20);
+        }];
+    });}
 @end
 
 @interface TBWeatherIndicesView()

@@ -17,6 +17,7 @@
 #import <Masonry/Masonry.h>
 #import <QMUIKit/QMUIKit.h>
 #import <ReactiveObjC/ReactiveObjC.h>
+#import "TBWeatherLayout.h"
 
 @implementation QWeatherHourlyLineView
 
@@ -34,16 +35,20 @@
 }
 -(void)layoutSubviews{
     [super layoutSubviews];
-    [self.contentView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(self);
-        make.height.equalTo(self);
-    }];
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.contentView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.edges.equalTo(self);
+            make.height.equalTo(self);
+        }];
+    });
     if (self.xLabelsArray.count > 0) {
         [self.xLabelsArray mas_distributeViewsAlongAxis:MASAxisTypeHorizontal withFixedSpacing:20 leadSpacing:0 tailSpacing:0];
-        [self.xLabelsArray mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.bottom.mas_equalTo(-Space_16);
-            make.width.greaterThanOrEqualTo(@60);
-        }];
+        TBWeatherLayoutOnce(self, @"constraints1", ^{
+            [self.xLabelsArray mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.bottom.mas_equalTo(-Space_16);
+                make.width.greaterThanOrEqualTo(@60);
+            }];
+        });
     }}
 -(void)scrollTempLabel{
     @weakify(self)

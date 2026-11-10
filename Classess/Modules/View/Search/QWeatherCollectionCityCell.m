@@ -11,6 +11,7 @@
 #import "UtilsMacros.h"
 #import <QMUIKit/QMUIKit.h>
 #import <Masonry/Masonry.h>
+#import "TBWeatherLayout.h"
 
 @implementation QWeatherCollectionCityCell
 
@@ -29,9 +30,11 @@
 }
 -(void)layoutSubviews{
     [super layoutSubviews];
-    [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.center.equalTo(self);
-    }];
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.center.equalTo(self);
+        }];
+    });
 }
 
 @end

@@ -13,6 +13,7 @@
 #import <DateTools/DateTools.h>
 #import <QMUIKit/QMUIKit.h>
 #import <Masonry/Masonry.h>
+#import "TBWeatherLayout.h"
 
 @implementation QWeatherTodayWeatherMoonRiseCurveView
 
@@ -63,10 +64,12 @@
 }
 -(void)layoutSubviews{
     [super layoutSubviews];
-    [self.bottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.left.right.equalTo(self);
-        make.height.equalTo(@(1));
-    }];
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.bottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.left.right.equalTo(self);
+            make.height.equalTo(@(1));
+        }];
+    });
   
 }
 -(void)drawRect:(CGRect)rect{

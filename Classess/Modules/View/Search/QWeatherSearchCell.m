@@ -10,6 +10,7 @@
 #import "FontAndColorMacros.h"
 #import <QMUIKit/QMUIKit.h>
 #import <Masonry/Masonry.h>
+#import "TBWeatherLayout.h"
 
 @implementation QWeatherSearchCell
 -(instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
@@ -36,16 +37,18 @@
 -(void)layoutSubviews{
     [super layoutSubviews];
    
-    [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(@Space_16);
-        make.top.bottom.right.mas_equalTo(0);
-    }];
-    [self.line mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.mas_equalTo(0);
-        make.right.equalTo(self.contentView);
-        make.height.equalTo(@1);
-        make.left.equalTo(self.titleLabel);
-    }];
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(@Space_16);
+            make.top.bottom.right.mas_equalTo(0);
+        }];
+        [self.line mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.mas_equalTo(0);
+            make.right.equalTo(self.contentView);
+            make.height.equalTo(@1);
+            make.left.equalTo(self.titleLabel);
+        }];
+    });
 }
 
 @end

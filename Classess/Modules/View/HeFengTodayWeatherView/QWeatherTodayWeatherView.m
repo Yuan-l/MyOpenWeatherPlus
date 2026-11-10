@@ -13,6 +13,7 @@
 #import "FontAndColorMacros.h"
 #import <Masonry/Masonry.h>
 #import <QMUIKit/UIColor+QMUI.h>
+#import "TBWeatherLayout.h"
 
 @interface QWeatherTodayWeatherView()
 @property (nonatomic,strong) QWeatherBaseLabel *titleLabel;
@@ -39,59 +40,67 @@
 -(void)layoutSubviews{
     [super layoutSubviews];
     
-    [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(Space_16);
-        make.top.mas_equalTo(Space_16);
-    }];
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(Space_16);
+            make.top.mas_equalTo(Space_16);
+        }];
+    });
 #pragma mark item
-    [self.itemViewArray[0] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(Space_32);
-        make.top.equalTo(self.titleLabel.mas_bottom).offset(Space_16);
-        make.right.equalTo(self.mas_centerX);
-        make.height.mas_equalTo(40);
-    }];
-    [self.itemViewArray[1] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.mas_centerX).offset(Space_32);
-        make.top.equalTo(self.titleLabel.mas_bottom).offset(Space_16);
-        make.height.width.equalTo(self.itemViewArray[0]);
+    TBWeatherLayoutOnce(self, @"constraints1", ^{
+        [self.itemViewArray[0] mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(Space_32);
+            make.top.equalTo(self.titleLabel.mas_bottom).offset(Space_16);
+            make.right.equalTo(self.mas_centerX);
+            make.height.mas_equalTo(40);
+        }];
+        [self.itemViewArray[1] mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.mas_centerX).offset(Space_32);
+            make.top.equalTo(self.titleLabel.mas_bottom).offset(Space_16);
+            make.height.width.equalTo(self.itemViewArray[0]);
         
-    }];
-    [self.itemViewArray[2] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(Space_32);
-        make.top.equalTo(self.itemViewArray[0].mas_bottom).offset(Space_16);
-        make.height.width.equalTo(self.itemViewArray[0]);
-    }];
-    [self.itemViewArray[3] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.mas_centerX).offset(Space_32);
-        make.top.equalTo(self.itemViewArray[0].mas_bottom).offset(Space_16);
-        make.height.width.equalTo(self.itemViewArray[0]);
-    }];
-    [self.itemViewArray[4] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(Space_32);
-        make.top.equalTo(self.itemViewArray[2].mas_bottom).offset(Space_16);
-        make.height.width.equalTo(self.itemViewArray[0]);
-    }];
-    [self.itemViewArray[5] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.mas_centerX).offset(Space_32);
-        make.top.equalTo(self.itemViewArray[2].mas_bottom).offset(Space_16);
-        make.height.width.equalTo(self.itemViewArray[0]);
-    }];
-    [self.itemViewArray[6] mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(Space_32);
-        make.top.equalTo(self.itemViewArray[4].mas_bottom).offset(Space_16);
-        make.height.width.equalTo(self.itemViewArray[0]);
-    }];
+        }];
+        [self.itemViewArray[2] mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(Space_32);
+            make.top.equalTo(self.itemViewArray[0].mas_bottom).offset(Space_16);
+            make.height.width.equalTo(self.itemViewArray[0]);
+        }];
+        [self.itemViewArray[3] mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.mas_centerX).offset(Space_32);
+            make.top.equalTo(self.itemViewArray[0].mas_bottom).offset(Space_16);
+            make.height.width.equalTo(self.itemViewArray[0]);
+        }];
+        [self.itemViewArray[4] mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(Space_32);
+            make.top.equalTo(self.itemViewArray[2].mas_bottom).offset(Space_16);
+            make.height.width.equalTo(self.itemViewArray[0]);
+        }];
+        [self.itemViewArray[5] mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.mas_centerX).offset(Space_32);
+            make.top.equalTo(self.itemViewArray[2].mas_bottom).offset(Space_16);
+            make.height.width.equalTo(self.itemViewArray[0]);
+        }];
+        [self.itemViewArray[6] mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(Space_32);
+            make.top.equalTo(self.itemViewArray[4].mas_bottom).offset(Space_16);
+            make.height.width.equalTo(self.itemViewArray[0]);
+        }];
+    });
 #pragma mark aqi
-    [self.aqiBackView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.itemViewArray[6].mas_bottom).offset(Space_16);
-        make.left.right.mas_equalTo(0);
-    }];
+    TBWeatherLayoutOnce(self, @"constraints2", ^{
+        [self.aqiBackView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.equalTo(self.itemViewArray[6].mas_bottom).offset(Space_16);
+            make.left.right.mas_equalTo(0);
+        }];
+    });
 #pragma mark moonrise
-    [self.moonRiseView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.aqiBackView.mas_bottom);
-        make.left.right.mas_equalTo(0);
-        make.bottom.mas_equalTo(0);
-    }];
+    TBWeatherLayoutOnce(self, @"constraints3", ^{
+        [self.moonRiseView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.equalTo(self.aqiBackView.mas_bottom);
+            make.left.right.mas_equalTo(0);
+            make.bottom.mas_equalTo(0);
+        }];
+    });
     
 }
 -(void)reloadViewWithModel:(QWeatherHomeTabelViewDataModel *)model{

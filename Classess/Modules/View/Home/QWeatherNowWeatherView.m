@@ -16,6 +16,7 @@
 #import <Masonry/Masonry.h>
 #import <QMUIKit/QMUIKit.h>
 #import <ReactiveObjC/ReactiveObjC.h>
+#import "TBWeatherLayout.h"
 
 @implementation QWeatherNowWeatherView
 {
@@ -69,30 +70,32 @@
 }
 -(void)layoutSubviews{
     [super layoutSubviews];
-    [self.backImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.bottom.left.right.equalTo(self);
-    }];
-    [self.waterWaveView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.left.right.mas_equalTo(0);
-        make.height.mas_equalTo(45);
-    }];
-    [self.tempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.mas_equalTo(10);
-        make.top.mas_equalTo(QWeatherAdaptedHeight(125));
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.backImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.bottom.left.right.equalTo(self);
+        }];
+        [self.waterWaveView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.left.right.mas_equalTo(0);
+            make.height.mas_equalTo(45);
+        }];
+        [self.tempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerX.mas_equalTo(10);
+            make.top.mas_equalTo(QWeatherAdaptedHeight(125));
         
-    }];
-    [self.weatherStateLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.mas_equalTo(0);
-        make.top.equalTo(self.tempLabel.mas_bottom).offset(14);
-    }];
-    [self.alarmLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.mas_equalTo(0);
-    }];
-    [backView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.weatherStateLabel.mas_bottom).offset(14);
-//        make.edges.equalTo(self.alarmLabel).offset(UIEdgeInsetsMake(-4, -14, -4, -14));
-        make.edges.equalTo(self.alarmLabel).insets(UIEdgeInsetsMake(-4, -14, -4, -14));
-    }];
+        }];
+        [self.weatherStateLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerX.mas_equalTo(0);
+            make.top.equalTo(self.tempLabel.mas_bottom).offset(14);
+        }];
+        [self.alarmLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerX.mas_equalTo(0);
+        }];
+        [backView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.equalTo(self.weatherStateLabel.mas_bottom).offset(14);
+    //        make.edges.equalTo(self.alarmLabel).offset(UIEdgeInsetsMake(-4, -14, -4, -14));
+            make.edges.equalTo(self.alarmLabel).insets(UIEdgeInsetsMake(-4, -14, -4, -14));
+        }];
+    });
     
 }
 -(void)reloadViewWithModel:(QWeatherHomeTabelViewDataModel *)model{

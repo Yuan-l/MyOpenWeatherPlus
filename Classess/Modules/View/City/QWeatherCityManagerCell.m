@@ -10,6 +10,7 @@
 #import "FontAndColorMacros.h"
 #import <QMUIKit/QMUIKit.h>
 #import <Masonry/Masonry.h>
+#import "TBWeatherLayout.h"
 
 @implementation QWeatherCityManagerCell
 -(instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
@@ -39,21 +40,23 @@
 }
 -(void)layoutSubviews{
     [super layoutSubviews];
-    [self.delButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(@Space_16);
-        make.height.equalTo(self.delButton.mas_width);
-        make.centerY.mas_equalTo(0);
-    }];
-    [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.delButton.mas_right).offset(8);
-        make.top.bottom.right.mas_equalTo(0);
-    }];
-    [self.line mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.mas_equalTo(0);
-        make.right.equalTo(self);
-        make.height.equalTo(@1);
-        make.left.equalTo(self.titleLabel);
-    }];
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.delButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(@Space_16);
+            make.height.equalTo(self.delButton.mas_width);
+            make.centerY.mas_equalTo(0);
+        }];
+        [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.delButton.mas_right).offset(8);
+            make.top.bottom.right.mas_equalTo(0);
+        }];
+        [self.line mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.mas_equalTo(0);
+            make.right.equalTo(self);
+            make.height.equalTo(@1);
+            make.left.equalTo(self.titleLabel);
+        }];
+    });
 }
 
 @end

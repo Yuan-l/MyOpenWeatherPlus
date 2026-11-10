@@ -17,6 +17,7 @@
 #import <Masonry/Masonry.h>
 #import <QMUIKit/QMUIKit.h>
 #import <ReactiveObjC/ReactiveObjC.h>
+#import "TBWeatherLayout.h"
 
 @interface QWeatherDayWeatherView()
 @property (nonatomic,strong) NSMutableArray<QWeatherDayWeatherRowView*> *rowViewArray;
@@ -40,9 +41,11 @@
     if (self.rowViewArray.count == 0 || self.didDistribute) { return; }
     self.didDistribute = YES;
     [self.rowViewArray mas_distributeViewsAlongAxis:MASAxisTypeVertical withFixedSpacing:30 leadSpacing:Space_16 tailSpacing:Space_16];
-    [self.rowViewArray mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.mas_equalTo(0);
-    }];
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.rowViewArray mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.right.mas_equalTo(0);
+        }];
+    });
 }
 -(void)reloadViewWithModel:(QWeatherHomeTabelViewDataModel *)model{
     [self.rowViewArray enumerateObjectsUsingBlock:^(QWeatherDayWeatherRowView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {

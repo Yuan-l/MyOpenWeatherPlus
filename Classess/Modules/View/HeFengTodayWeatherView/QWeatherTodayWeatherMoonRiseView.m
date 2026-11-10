@@ -14,6 +14,7 @@
 #import <Masonry/Masonry.h>
 #import <QMUIKit/QMUIKit.h>
 #import <ReactiveObjC/ReactiveObjC.h>
+#import "TBWeatherLayout.h"
 
 @implementation QWeatherTodayWeatherMoonRiseView
 
@@ -51,77 +52,79 @@
 -(void)layoutSubviews{
     [super layoutSubviews];
     
-    [self.topLine mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(0);
-        make.left.equalTo(@(Space_16));
-        make.right.equalTo(@(-Space_16));
-        make.height.equalTo(@(1));
-    }];
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.topLine mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(0);
+            make.left.equalTo(@(Space_16));
+            make.right.equalTo(@(-Space_16));
+            make.height.equalTo(@(1));
+        }];
     
-    [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.top.mas_equalTo(Space_16);
-    }];
+        [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.top.mas_equalTo(Space_16);
+        }];
     
-    [self.sunriseLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(@(-Space_16));
-        make.left.equalTo(@(Space_16));
-        make.height.equalTo(@(14));
-    }];
+        [self.sunriseLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.equalTo(@(-Space_16));
+            make.left.equalTo(@(Space_16));
+            make.height.equalTo(@(14));
+        }];
     
-    [self.sunriseTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(self.sunriseLabel.mas_top).offset(-4);
-        make.left.width.equalTo(self.sunriseLabel);
-        make.height.equalTo(@(14));
+        [self.sunriseTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.equalTo(self.sunriseLabel.mas_top).offset(-4);
+            make.left.width.equalTo(self.sunriseLabel);
+            make.height.equalTo(@(14));
         
-    }];
+        }];
     
-    [self.sunsetLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(self.sunriseLabel);
-        make.right.equalTo(self.mas_centerX).offset(-Space_16);
-        make.height.equalTo(@(14));
-    }];
+        [self.sunsetLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.equalTo(self.sunriseLabel);
+            make.right.equalTo(self.mas_centerX).offset(-Space_16);
+            make.height.equalTo(@(14));
+        }];
     
-    [self.sunsetTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(self.sunsetLabel.mas_top).offset(-4);
-        make.right.width.equalTo(self.sunsetLabel);
-        make.height.equalTo(@(14));
-    }];
+        [self.sunsetTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.equalTo(self.sunsetLabel.mas_top).offset(-4);
+            make.right.width.equalTo(self.sunsetLabel);
+            make.height.equalTo(@(14));
+        }];
     
-    [self.monthlyLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(self.sunriseLabel);
-        make.left.equalTo(self.mas_centerX).offset(Space_16);
-        make.height.equalTo(@(14));
-    }];
+        [self.monthlyLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.equalTo(self.sunriseLabel);
+            make.left.equalTo(self.mas_centerX).offset(Space_16);
+            make.height.equalTo(@(14));
+        }];
     
-    [self.monthlyTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(self.monthlyLabel.mas_top).offset(-4);
-        make.left.width.equalTo(self.monthlyLabel);
-        make.height.equalTo(@(14));
-    }];
+        [self.monthlyTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.equalTo(self.monthlyLabel.mas_top).offset(-4);
+            make.left.width.equalTo(self.monthlyLabel);
+            make.height.equalTo(@(14));
+        }];
     
-    [self.moonfallLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(self.sunriseLabel);
-        make.right.equalTo(@(-Space_16));
-        make.height.equalTo(@(14));
-    }];
+        [self.moonfallLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.equalTo(self.sunriseLabel);
+            make.right.equalTo(@(-Space_16));
+            make.height.equalTo(@(14));
+        }];
     
-    [self.moonfallTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(self.moonfallLabel.mas_top).offset(-4);
-        make.right.width.equalTo(self.moonfallLabel);
-        make.height.equalTo(@(14));
-    }];
+        [self.moonfallTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.equalTo(self.moonfallLabel.mas_top).offset(-4);
+            make.right.width.equalTo(self.moonfallLabel);
+            make.height.equalTo(@(14));
+        }];
   
-    [self.sunCurveView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.sunriseLabel.mas_centerX).offset(-10);
-        make.right.equalTo(self.sunsetLabel.mas_centerX).offset(10);
-        make.bottom.equalTo(self.sunriseTitleLabel.mas_top).offset(-10);
-        make.top.equalTo(self.titleLabel.mas_bottom).offset(Space_16);
-        make.height.equalTo(self.sunCurveView.mas_width).multipliedBy(0.5);
-    }];
-    [self.moonCurveView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.width.bottom.equalTo(self.sunCurveView);
-        make.right.equalTo(self.moonfallLabel.mas_centerX).offset(10);
-    }];
+        [self.sunCurveView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.sunriseLabel.mas_centerX).offset(-10);
+            make.right.equalTo(self.sunsetLabel.mas_centerX).offset(10);
+            make.bottom.equalTo(self.sunriseTitleLabel.mas_top).offset(-10);
+            make.top.equalTo(self.titleLabel.mas_bottom).offset(Space_16);
+            make.height.equalTo(self.sunCurveView.mas_width).multipliedBy(0.5);
+        }];
+        [self.moonCurveView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.width.bottom.equalTo(self.sunCurveView);
+            make.right.equalTo(self.moonfallLabel.mas_centerX).offset(10);
+        }];
+    });
 
 }
 -(UIView *)topLine{

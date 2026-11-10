@@ -13,6 +13,7 @@
 #import <ReactiveObjC/ReactiveObjC.h>
 #import <QMUIKit/QMUIKit.h>
 #import <Masonry/Masonry.h>
+#import "TBWeatherLayout.h"
 
 @implementation QWeatherHourlyImageView
 
@@ -61,11 +62,13 @@
     [super layoutSubviews];
     self.backLayer.frame = self.bounds;
     self.vlineLayer.frame = CGRectMake(self.qmui_width-1, 0, 1, self.qmui_height);
-    [self.imageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self);
-        make.bottom.equalTo(@(-4));
-        make.size.mas_equalTo(CGSizeMake(16, 16));
-    }];
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.imageView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self);
+            make.bottom.equalTo(@(-4));
+            make.size.mas_equalTo(CGSizeMake(16, 16));
+        }];
+    });
 }
 
 

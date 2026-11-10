@@ -10,6 +10,7 @@
 #import "FontAndColorMacros.h"
 #import <Masonry/Masonry.h>
 #import <QMUIKit/QMUIKit.h>
+#import "TBWeatherLayout.h"
 
 @implementation QWeatherHourlyWeatherView
 
@@ -30,25 +31,27 @@
 -(void)layoutSubviews{
     [super layoutSubviews];
    
-    [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.left.equalTo(@Space_16);
-    }];
-    [self.maxTempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(@Space_16);
-        make.top.equalTo(self.titleLabel.mas_bottom).offset(35);
-    }];
-    [self.minTempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(@Space_16);
-        make.top.equalTo(self.maxTempLabel.mas_bottom).offset(30);
-        make.bottom.equalTo(@(-20));
-        make.width.equalTo(self.maxTempLabel);
-    }];
-    [self.weatherLineView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.maxTempLabel.mas_right);
-        make.top.equalTo(self.maxTempLabel);
-        make.right.mas_equalTo(0);
-        make.bottom.mas_equalTo(0);
-    }];
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.left.equalTo(@Space_16);
+        }];
+        [self.maxTempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(@Space_16);
+            make.top.equalTo(self.titleLabel.mas_bottom).offset(35);
+        }];
+        [self.minTempLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(@Space_16);
+            make.top.equalTo(self.maxTempLabel.mas_bottom).offset(30);
+            make.bottom.equalTo(@(-20));
+            make.width.equalTo(self.maxTempLabel);
+        }];
+        [self.weatherLineView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.maxTempLabel.mas_right);
+            make.top.equalTo(self.maxTempLabel);
+            make.right.mas_equalTo(0);
+            make.bottom.mas_equalTo(0);
+        }];
+    });
 }
 -(void)reloadViewWithModel:(QWeatherHomeTabelViewDataModel *)model{
     self.maxTempLabel.hefengTempString = model.daily.firstObject.tempMax;

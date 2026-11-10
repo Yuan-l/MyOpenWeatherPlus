@@ -17,6 +17,7 @@
 #import <Masonry/Masonry.h>
 #import <QMUIKit/QMUIKit.h>
 #import <ReactiveObjC/ReactiveObjC.h>
+#import "TBWeatherLayout.h"
 
 @implementation QWeatherTodayWeatherItemView
 {
@@ -48,19 +49,21 @@
 }
 -(void)layoutSubviews{
     [super layoutSubviews];
-    [self.imageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(0);
-        make.centerY.mas_equalTo(0);
-        make.width.height.mas_equalTo(20);
-    }];
-    [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.imageView.mas_right).offset(8);
-        make.centerY.mas_equalTo(0);
-    }];
-    [self.contentLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.titleLabel.mas_right).offset(8);
-        make.centerY.mas_equalTo(0);
-    }];
+    TBWeatherLayoutOnce(self, @"constraints", ^{
+        [self.imageView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(0);
+            make.centerY.mas_equalTo(0);
+            make.width.height.mas_equalTo(20);
+        }];
+        [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.imageView.mas_right).offset(8);
+            make.centerY.mas_equalTo(0);
+        }];
+        [self.contentLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.titleLabel.mas_right).offset(8);
+            make.centerY.mas_equalTo(0);
+        }];
+    });
 }
 - (void)setIdx:(NSInteger)idx{
     _idx = idx;
