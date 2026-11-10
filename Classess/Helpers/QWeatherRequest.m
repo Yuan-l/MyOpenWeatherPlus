@@ -98,7 +98,7 @@
                 daily15 = responseObject.daily;
                 dispatch_group_leave(group);
             } faileureForError:^(NSError *err) {
-                if (!requestError) { requestError = err; }
+                // 15 天预报属于增强数据：免费套餐可能不可用，失败不应影响主流程刷新
                 dispatch_group_leave(group);
             }];
             //生活指数（先设置需要的指数类型，SDK 用全局单例承载配置，保持与上面相同的串行设置模式）
@@ -110,7 +110,7 @@
                 indicesModel = responseObject;
                 dispatch_group_leave(group);
             } faileureForError:^(NSError *err) {
-                if (!requestError) { requestError = err; }
+                // 生活指数为可选数据，失败时隐藏该区块即可
                 dispatch_group_leave(group);
             }];
             //日月信息（日出日落/月出月落/月相）
@@ -121,7 +121,7 @@
                 sunMoonModel = responseObject;
                 dispatch_group_leave(group);
             } faileureForError:^(NSError *err) {
-                if (!requestError) { requestError = err; }
+                // 日月信息为可选数据，失败不影响天气主数据
                 dispatch_group_leave(group);
             }];
 

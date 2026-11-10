@@ -126,6 +126,17 @@
 -(void)setDataModel:(QWeatherHomeTabelViewDataModel *)dataModel{
     _dataModel = dataModel;
     self.backgroundColor = [[[[QWeatherTool getWeatherImageWithWeatherCode:dataModel.now.icon date:dataModel.updateTime formatString:QWeatherBgImageFormatString] qmui_imageResizedInLimitedSize:CGSizeMake(SCREEN_WIDTH, SCREEN_HEIGHT-160-NavigationContentTop) resizingMode:QMUIImageResizingModeScaleAspectFill scale:ScreenScale] qmui_imageResizedInLimitedSize:CGSizeMake(SCREEN_WIDTH, 1) resizingMode:QMUIImageResizingModeScaleAspectFillTop] qmui_averageColor];
+    // 可选区块没有数据时把高度收为 0，避免出现大块空白
+    BOOL hasIndices = QWeatherValidArray(dataModel.indicesModel.daily);
+    [self.indicesView mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.height.mas_equalTo(hasIndices ? 400 : 0);
+    }];
+    BOOL hasSunMoon = QWeatherStrValid(dataModel.sunMoonModel.sunrise) ||
+                      QWeatherStrValid(dataModel.daily15.firstObject.sunrise);
+    [self.sunMoonView mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.height.mas_equalTo(hasSunMoon ? 170 : 0);
+    }];
+
     [self.nowWeatherView reloadViewWithModel:dataModel];
     [self.hourlyWeatherView reloadViewWithModel:dataModel];
     [self.threeDayWeatherView reloadViewWithModel:dataModel];
