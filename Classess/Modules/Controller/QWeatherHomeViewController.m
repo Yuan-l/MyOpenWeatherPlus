@@ -15,6 +15,7 @@
 #import "QWeatherDataManager.h"
 #import "QWeatherCityManagerViewController.h"
 #import "TBWeatherCityBar.h"
+#import "TBCityCatalog.h"
 #import "QWeatherTool.h"
 #import <AMapLocationKit/AMapLocationKit.h>
 #import <AMapLocationKit/AMapLocationManager.h>
@@ -35,6 +36,8 @@
 @property (nonatomic,strong) TBWeatherCityBar *cityBar;
 @property (nonatomic,strong) QWeatherRequest *weatherRequest;
 @property (nonatomic,strong) AMapLocationManager *locationManager;
+@property (nonatomic,strong) UILabel *emptyLabel;
+@property (nonatomic,strong) UILabel *errorHintLabel;
 @end
 
 @implementation QWeatherHomeViewController
@@ -80,6 +83,12 @@
     
     [[QWeatherNotificationCenter rac_addObserverForName:KNotificationRefreshCity object:nil ]subscribeNext:^(NSNotification * _Nullable x) {
         [self getDataWithLocation:x.object isLoaction:NO];
+    }];
+    // 添加城市：直接接收完整城市对象，先落库再异步补天气数据，网络失败也保留城市
+    [[QWeatherNotificationCenter rac_addObserverForName:KNotificationAddCity object:nil ]subscribeNext:^(NSNotification * _Nullable x) {
+        if ([x.object isKindOfClass:[TBCityItem class]]) {
+            [self addCityWithItem:(TBCityItem *)x.object isLocation:NO];
+        }
     }];
     @weakify(self)
     [[QWeatherNotificationCenter rac_addObserverForName:KNotificationRefreshHomeData object:nil ]subscribeNext:^(NSNotification * _Nullable x) {
@@ -166,50 +175,88 @@
     [locationManager requestAlwaysAuthorization];
 }
 
+/// 兼容旧入口（定位坐标、历史通知、默认城市）：优先用本地城市库解析，
+/// 解析不到才走一次 GEO 反查；两条路径都有失败反馈，不再静默什么都不做。
 -(void)getDataWithLocation:(NSString *)location isLoaction:(BOOL)isLoaction{
-    NSDictionary *param = @{@"location":location};
+    if (!QWeatherStrValid(location)) {
+        return;
+    }
+    TBCityCatalog *catalog = [TBCityCatalog sharedCatalog];
+
+    // 1) cid / 中文名能直接命中本地城市库 → 立刻落库，不再多一跳网络请求
+    TBCityItem *known = [catalog cityWithID:location] ?: [catalog cityWithName:location];
+    if (known) {
+        [self addCityWithItem:known isLocation:isLoaction];
+        return;
+    }
+
+    // 2) 定位经纬度 / 海外城市：走 GEO 反查
     @weakify(self)
-    [[self.weatherRequest.citySearchCommand execute:param] subscribeNext:^(GeoBaseClass * Geox) {
+    [[[self.weatherRequest.citySearchCommand execute:@{@"location":location}] deliverOnMainThread]
+     subscribeNext:^(GeoBaseClass *geo) {
         @strongify(self)
-        if (Geox.location.count>0) {
-            [self.homeNavView.locationTitleButton setTitle:Geox.location.firstObject.name forState:UIControlStateNormal];
-            NSMutableDictionary *param = [NSMutableDictionary dictionary];
-            param[@"cityId"] = Geox.location.firstObject.cid;
-            param[@"location"] = Geox.location.firstObject.name;
-            param[@"parent_city"] = Geox.location.firstObject.adm2?Geox.location.firstObject.adm2:@"";
-            //日月接口必填（SDK 参数拼装需要，缺失会崩溃）
-            param[@"lat"] = Geox.location.firstObject.lat ?: @"";
-            param[@"lon"] = Geox.location.firstObject.lon ?: @"";
-            param[@"tz"] = Geox.location.firstObject.tz ?: @"";
-            [[self.weatherRequest.homeDataCommand execute:param] subscribeNext:^(QWeatherHomeTabelViewDataModel  * x) {
-                x.basic = Geox.location.firstObject;
-                @strongify(self)
-                if (QWeatherStrEqual(x.code,@"200")) {
-                    BOOL added = [QWeatherManager addCityModel:x isLocation:isLoaction];
-                    if (!added) {
-                        [self showCityLimitAlert];
-                    }
-                    NSInteger index = isLoaction ? 0 : [QWeatherManager indexOfCityWithID:(x.basic.cid ?: Geox.location.firstObject.cid)];
-                    if (index != NSNotFound) {
-                        QWeatherManager.selectedCityIndex = index;
-                    }
-                }
-                else{
-                    QWeatherLogError(@"%@",x.code);
-                }
-                [self reloadHomeData];
-            }];
+        TBCityItem *item = [[TBCityCatalog sharedCatalog] itemWithLocation:geo.location.firstObject];
+        if (!item) {
+            QWeatherLogError(@"GEO 无结果：%@", location);
+            [self showCityResolveFailureHint];
+            return;
         }
+        [self addCityWithItem:item isLocation:isLoaction];
+    } error:^(NSError *error) {
+        @strongify(self)
+        QWeatherLogError(@"城市反查失败：%@", error);
+        [self showCityResolveFailureHint];
     }];
 }
+
+/// 添加城市：先用离线目录信息立即落库，再触发一次串行刷新补天气数据。
+/// 网络失败不会让城市消失，这是「添加城市真的可用」的关键。
+-(void)addCityWithItem:(TBCityItem *)item isLocation:(BOOL)isLocation{
+    if (!item || item.cid.length == 0) {
+        return;
+    }
+    NSInteger existing = [QWeatherManager indexOfCityWithID:item.cid];
+    if (existing != NSNotFound && !isLocation) {
+        [self switchToCityIndex:existing];
+        return;
+    }
+
+    QWeatherHomeTabelViewDataModel *placeholder = [QWeatherHomeTabelViewDataModel new];
+    placeholder.basic = [item locationValue];
+    placeholder.code = @"";
+    placeholder.loadState = @"pending";
+    placeholder.lastUpdatedAt = 0;
+
+    if (![QWeatherManager addCityModel:placeholder isLocation:isLocation]) {
+        [self showCityLimitAlert];
+        return;
+    }
+    NSInteger index = isLocation ? 0 : [QWeatherManager indexOfCityWithID:item.cid];
+    QWeatherManager.selectedCityIndex = (index == NSNotFound) ? 0 : index;
+    self.errorHintLabel.hidden = YES;
+    [self.homeNavView.locationTitleButton setTitle:item.name forState:UIControlStateNormal];
+    [self reloadHomeData];
+    // 刷新走 upDateHomeDataCommand（逐城市串行、单城失败保留旧数据）
+    QWeatherPostNotification(KNotificationRefreshHomeData, nil);
+}
+
+-(void)showCityResolveFailureHint{
+    self.errorHintLabel.text = @"城市解析失败，请到「添加城市」重试或下拉刷新";
+    self.errorHintLabel.hidden = NO;
+}
+
 -(void)reloadHomeData{
     NSInteger count = QWeatherManager.collectionDataArray.count;
     if (count == 0) {
         [self.homeNavView setPage:0];
         [self.cityBar reloadWithCityNames:@[] selectedIndex:0];
         [self.weatherCollectionView reloadData];
+        self.emptyLabel.hidden = NO;
+        self.errorHintLabel.hidden = YES;
         return;
     }
+    self.emptyLabel.hidden = YES;
+    [self updateErrorHint];
 
     NSInteger page = MIN(MAX(0, QWeatherManager.selectedCityIndex), count - 1);
     [self.weatherCollectionView reloadData];
@@ -220,6 +267,16 @@
     [self.homeNavView setPage:page];
     [self syncCityBarWithPage:page];
     [self applyBackgroundColor];
+}
+
+/// 当前城市数据加载失败时给出可见反馈与重试提示（不弹窗打断操作）
+-(void)updateErrorHint{
+    NSInteger index = MIN(MAX(0, QWeatherManager.selectedCityIndex),
+                          (NSInteger)QWeatherManager.collectionDataArray.count - 1);
+    QWeatherHomeTabelViewDataModel *model = QWeatherManager.collectionDataArray[index];
+    BOOL failed = QWeatherStrEqual(model.loadState, @"failed");
+    self.errorHintLabel.text = failed ? @"天气数据加载失败，下拉可重试" : @"";
+    self.errorHintLabel.hidden = !failed;
 }
 
 /// 城市切换条与当前页保持同步
@@ -243,19 +300,25 @@
     self.weatherCollectionView.backgroundColor = bg;
 }
 
-/// 点击城市 chip 切换到对应页
+/// 点击城市 chip 切换到对应页；数据过期/失败时补一次刷新
 -(void)switchToCityIndex:(NSInteger)index{
     NSInteger count = QWeatherManager.collectionDataArray.count;
     if (index < 0 || index >= count) {
         return;
     }
     QWeatherManager.selectedCityIndex = index;
+    [self.weatherCollectionView reloadData];
     [self.weatherCollectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]
                                         atScrollPosition:UICollectionViewScrollPositionCenteredHorizontally
                                                 animated:YES];
     [self.homeNavView setPage:index];
     [self.cityBar updateSelectedIndex:index];
     [self applyBackgroundColor];
+    [self updateErrorHint];
+    // 30 分钟 TTL：切到过期或上次失败的城市时重新取数，避免「切了城市但内容不变」
+    if ([QWeatherManager cityNeedsRefreshAtIndex:index ttl:30 * 60]) {
+        QWeatherPostNotification(KNotificationRefreshHomeData, nil);
+    }
 }
 
 -(void)showCityLimitAlert{
@@ -269,6 +332,8 @@
     [self.view addSubview:self.weatherCollectionView];
     [self.view addSubview:self.homeNavView];
     [self.view addSubview:self.cityBar];
+    [self.view addSubview:self.emptyLabel];
+    [self.view addSubview:self.errorHintLabel];
     [self.homeNavView setPage:self.homeNavView.pageControl.currentPage];
     self.weatherCollectionView.backgroundColor = [self.homeNavView.image qmui_averageColor];
 }
@@ -287,6 +352,16 @@
         make.leading.trailing.equalTo(self.view);
         make.bottom.equalTo(self.view.mas_safeAreaLayoutGuideBottom);
         make.top.equalTo(self.cityBar.mas_bottom).offset(2);
+    }];
+    [self.emptyLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.center.equalTo(self.weatherCollectionView);
+        make.left.equalTo(self.view).offset(Space_16);
+        make.right.equalTo(self.view).offset(-Space_16);
+    }];
+    [self.errorHintLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.equalTo(self.view);
+        make.bottom.equalTo(self.view.mas_safeAreaLayoutGuideBottom);
+        make.height.mas_equalTo(32);
     }];
 }
 #pragma mark - 代理方法 Delegate Methods
@@ -312,12 +387,12 @@
 }
 // 每个分区上得元素个数
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return MAX(1, QWeatherManager.collectionDataArray.count);
+    return QWeatherManager.collectionDataArray.count;
 }
 // 设置cell
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     QWeatherHomeCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([QWeatherHomeCollectionViewCell class]) forIndexPath:indexPath];
-    cell.scrollView.dataModel = QWeatherManager.collectionDataArray.count > indexPath.row ? QWeatherManager.collectionDataArray[indexPath.row] : nil;
+    cell.scrollView.dataModel = indexPath.row < (NSInteger)QWeatherManager.collectionDataArray.count ? QWeatherManager.collectionDataArray[indexPath.row] : nil;
     return cell;
 }
 
@@ -368,6 +443,7 @@
     [self.homeNavView setPage:page];
     [self.cityBar updateSelectedIndex:page];
     [self applyBackgroundColor];
+    [self updateErrorHint];
 }
 
 -(UICollectionView *)weatherCollectionView{
@@ -415,6 +491,31 @@
         _locationManager.allowsBackgroundLocationUpdates = NO;
     }
     return _locationManager;
+}
+
+-(UILabel *)emptyLabel{
+    if (!_emptyLabel) {
+        _emptyLabel = [UILabel new];
+        _emptyLabel.text = @"还没有城市\n点击上方「＋」或城市条添加";
+        _emptyLabel.numberOfLines = 0;
+        _emptyLabel.textAlignment = NSTextAlignmentCenter;
+        _emptyLabel.textColor = [UIColor whiteColor];
+        _emptyLabel.font = [UIFont systemFontOfSize:15];
+        _emptyLabel.hidden = YES;
+    }
+    return _emptyLabel;
+}
+
+-(UILabel *)errorHintLabel{
+    if (!_errorHintLabel) {
+        _errorHintLabel = [UILabel new];
+        _errorHintLabel.textAlignment = NSTextAlignmentCenter;
+        _errorHintLabel.font = [UIFont systemFontOfSize:12];
+        _errorHintLabel.textColor = [UIColor whiteColor];
+        _errorHintLabel.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.35];
+        _errorHintLabel.hidden = YES;
+    }
+    return _errorHintLabel;
 }
 
 @end

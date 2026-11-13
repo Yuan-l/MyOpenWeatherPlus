@@ -62,6 +62,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic,copy) NSString *code;
 
+/// 天气数据最后一次成功刷新的时间戳（0 表示尚未成功加载）。
+/// 用于「切换城市时判断是否过期需要刷新」，旧缓存解出来是 0，会自动补一次。
+@property (nonatomic,assign) NSTimeInterval lastUpdatedAt;
+
+/// 加载状态：pending（刚添加，等待数据）/ failed（上次刷新失败）/ 空（正常）
+@property (nonatomic,copy) NSString *loadState;
+
 @end
 
 NS_ASSUME_NONNULL_END

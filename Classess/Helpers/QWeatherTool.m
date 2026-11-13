@@ -27,6 +27,9 @@
 #import <ReactiveObjC/ReactiveObjC.h>
 
 @interface QWeatherTool ()
++ (NSString *)configuredValueForEnv:(NSString *)envKey
+                            infoKey:(NSString *)infoKey
+                            fallback:(NSString *)fallback;
 + (UIImage *)gradientImageForWeatherCode:(NSString *)weatherCode isDay:(BOOL)isDay;
 + (UIImage *)symbolImageForWeatherCode:(NSString *)weatherCode isDay:(BOOL)isDay;
 @end
@@ -44,19 +47,44 @@
     fileLogger.logFileManager.maximumNumberOfLogFiles = 7;
     [DDLog addLogger:fileLogger withLevel:DDLogLevelWarning];
     
-    if (QWeatherStrValid(KAMapLocationAPPKey)) {
-        [AMapServices sharedServices].apiKey = KAMapLocationAPPKey;
+    // 凭据来源：环境变量（本地/CI）> Info.plist（按 Debug/Release 由 xcconfig 注入）> 源码宏（仅本地开发）
+    // 生产环境应把天气请求改为服务端代理，客户端不下发任何 SDK key。
+    NSString *amapKey = [QWeatherTool configuredValueForEnv:@"TB_AMAP_API_KEY"
+                                                    infoKey:@"QWeatherAMapAPIKey"
+                                                    fallback:KAMapLocationAPPKey];
+    NSString *publicID = [QWeatherTool configuredValueForEnv:@"TB_QWEATHER_PUBLIC_ID"
+                                                     infoKey:@"QWeatherPublicID"
+                                                     fallback:HeWeatherSDK_USERNameKey];
+    NSString *appKey = [QWeatherTool configuredValueForEnv:@"TB_QWEATHER_APP_KEY"
+                                                   infoKey:@"QWeatherAppKey"
+                                                   fallback:HeWeatherSDK_USERKey];
+
+    if (QWeatherStrValid(amapKey)) {
+        [AMapServices sharedServices].apiKey = amapKey;
     }else{
-        QWeatherLogWarn(@"请添加高德定位key👉🏻👉🏻👉🏻（替换KAMapLocationAPPKey的值）");
+        QWeatherLogWarn(@"请配置高德定位 key");
     }
-    
-    if (QWeatherStrValid(HeWeatherSDK_USERNameKey)||QWeatherStrValid(HeWeatherSDK_USERKey)) {
-        QWeatherConfigInstance.publicID = HeWeatherSDK_USERNameKey;
-        QWeatherConfigInstance.appKey = HeWeatherSDK_USERKey;
+
+    if (QWeatherStrValid(publicID) && QWeatherStrValid(appKey)) {
+        QWeatherConfigInstance.publicID = publicID;
+        QWeatherConfigInstance.appKey = appKey;
         QWeatherConfigInstance.appType = APP_TYPE_BIZ;
     }else{
-        QWeatherLogWarn(@"请添加和风天气的key👉🏻👉🏻👉🏻（替换HeWeatherSDK_USERNameKey和HeWeatherSDK_USERKey的值）");
+        QWeatherLogWarn(@"请配置和风天气 publicID / appKey");
     }
+}
+
++ (NSString *)configuredValueForEnv:(NSString *)envKey
+                            infoKey:(NSString *)infoKey
+                            fallback:(NSString *)fallback {
+    NSString *value = [NSProcessInfo processInfo].environment[envKey];
+    if (!QWeatherStrValid(value)) {
+        value = [[NSBundle mainBundle] objectForInfoDictionaryKey:infoKey];
+    }
+    if (!QWeatherStrValid(value)) {
+        value = fallback;
+    }
+    return value;
 }
 
 +(BOOL)isLocationAuthorizationStatusDenied{

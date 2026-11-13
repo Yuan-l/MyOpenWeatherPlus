@@ -115,6 +115,29 @@ SINGLETON_FOR_CLASS(QWeatherDataManager);
     }];
     return found;
 }
+-(BOOL)replaceCityAtIndex:(NSInteger)index withModel:(QWeatherHomeTabelViewDataModel *)model{
+    if (!model || index < 0 || index >= (NSInteger)self.collectionDataArray.count) {
+        return NO;
+    }
+    [self.collectionDataArray replaceObjectAtIndex:index withObject:model];
+    [self persistCollectionDataArray];
+    return YES;
+}
+
+-(BOOL)cityNeedsRefreshAtIndex:(NSInteger)index ttl:(NSTimeInterval)ttl{
+    if (index < 0 || index >= (NSInteger)self.collectionDataArray.count) {
+        return NO;
+    }
+    QWeatherHomeTabelViewDataModel *model = self.collectionDataArray[index];
+    if (!QWeatherStrEqual(model.code, @"200") ||
+        QWeatherStrEqual(model.loadState, @"failed") ||
+        QWeatherStrEqual(model.loadState, @"pending")) {
+        return YES;
+    }
+    NSTimeInterval elapsed = [[NSDate date] timeIntervalSince1970] - model.lastUpdatedAt;
+    return model.lastUpdatedAt <= 0 || elapsed >= ttl;
+}
+
 -(BOOL)isFirstOpenApp{
     return self.settingModel.isFirstOpenApp;
 }
@@ -152,11 +175,7 @@ SINGLETON_FOR_CLASS(QWeatherDataManager);
     }
 
     if (self.collectionDataArray.count >= self.maxCityCount) {
-        // 达到上限不静默删城市，恢复被移除的重复项并提示调用方
-        if (existing != NSNotFound) {
-            NSInteger restore = MIN(existing, (NSInteger)self.collectionDataArray.count);
-            [self.collectionDataArray insertObject:model atIndex:restore];
-        }
+        // 达到上限时不静默丢弃任何已有城市，由调用方提示用户先删除
         [self persistCollectionDataArray];
         return NO;
     }

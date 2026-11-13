@@ -63,6 +63,17 @@ SINGLETON_FOR_HEADER(QWeatherDataManager)
 -(NSInteger)indexOfCityWithID:(NSString *)cid;
 
 /**
+ 用新数据替换指定下标的城市（不改变顺序，不改动选中下标），并持久化。
+ 用于「先落库占位、再异步补天气数据」和单城市刷新。
+ */
+-(BOOL)replaceCityAtIndex:(NSInteger)index withModel:(QWeatherHomeTabelViewDataModel *)model;
+
+/**
+ 该城市是否需要刷新：未成功加载过 / 上次刷新失败 / 超过 ttl 秒。
+ */
+-(BOOL)cityNeedsRefreshAtIndex:(NSInteger)index ttl:(NSTimeInterval)ttl;
+
+/**
  删除城市数据
  
  @param index 索引

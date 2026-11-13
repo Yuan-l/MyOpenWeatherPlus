@@ -75,4 +75,10 @@ Pod::Spec.new do |spec|
   }
   
   spec.static_framework = true
+
+  # 测试子 spec：城市目录的回归测试独立编译，不进入主 App target。
+  # pod install 后可用 `xcodebuild test -scheme MyOpenWeatherPlus-Tests` 运行。
+  spec.test_spec 'Tests' do |test_spec|
+    test_spec.source_files = 'Tests/*.{m,h}'
+  end
 end

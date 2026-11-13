@@ -32,9 +32,15 @@
 -(void)getCommands{
     _citySearchCommand = [[RACCommand alloc]initWithSignalBlock:^RACSignal * _Nonnull(id  _Nullable input) {
         return [RACSignal createSignal:^RACDisposable * _Nullable(id<RACSubscriber>  _Nonnull subscriber) {
-            QWeatherConfigInstance.location = [input objectForKey:@"location"];
-            QWeatherConfigInstance.mode= SERCHMODE_TYPE_EXACT;
-            QWeatherConfigInstance.languageType= [QWeatherManager isEnglish]?LANGUAGE_TYPE_EN:LANGUAGE_TYPE_ZH;
+            NSString *keyword = [input objectForKey:@"location"] ?: @"";
+            QWeatherConfigInstance.location = keyword;
+            // GEO 只作为「本地城市库查不到」时的补充（例如海外城市），
+            // 因此用模糊搜索；只用 EXACT 时输入「广」「深」「bei」几乎总是空结果。
+            QWeatherConfigInstance.mode = SERCHMODE_TYPE_FUZZY;
+            // 中文关键词用中文检索，纯英文/拼音用英文检索，避免命中率为 0
+            BOOL hasChinese = [keyword rangeOfString:@"[\\u4e00-\\u9fa5]"
+                                             options:NSRegularExpressionSearch].location != NSNotFound;
+            QWeatherConfigInstance.languageType = hasChinese ? LANGUAGE_TYPE_ZH : LANGUAGE_TYPE_EN;
             [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_GEO_CITY_LOOKUP WithSuccess:^(GeoBaseClass  *responseObject) {
                 [subscriber sendNext:responseObject];
                 [subscriber sendCompleted];
@@ -228,13 +234,17 @@
                 chain = [chain flattenMap:^RACSignal *(NSArray *results) {
                     RACSignal *one = [[[[QWeatherRequest new] homeDataCommand] execute:param] flattenMap:^RACSignal *(QWeatherHomeTabelViewDataModel *x) {
                         if (!QWeatherStrEqual(x.code, @"200")) {
-                            // 单个城市失败时保留旧数据，不影响其它城市刷新
+                            // 单个城市失败时保留旧数据并标记状态，不影响其它城市刷新
+                            city.loadState = @"failed";
                             return [RACSignal return:[results arrayByAddingObject:city]];
                         }
                         x.basic = city.basic;
+                        x.lastUpdatedAt = [[NSDate date] timeIntervalSince1970];
+                        x.loadState = nil;
                         return [RACSignal return:[results arrayByAddingObject:x]];
                     }];
                     return [one catch:^RACSignal *(NSError *error) {
+                        city.loadState = @"failed";
                         return [RACSignal return:[results arrayByAddingObject:city]];
                     }];
                 }];

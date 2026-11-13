@@ -19,6 +19,8 @@
 
 #define KNotificationRestRootVC @"KNotificationRestRootVC"
 #define KNotificationRefreshCity @"KNotificationRefreshCity"
+/// 添加城市：object 是 TBCityItem（带完整 id / 名称 / 坐标），不再只传城市名或 cid
+#define KNotificationAddCity @"KNotificationAddCity"
 #define KNotificationRefreshHomeData @"KNotificationRefreshHomeData"
 #define KNotificationChangeTextSetting @"KNotificationChangeTextSetting"
 #define KNotificationRefreshEnd @"KNotificationRefreshEnd"
