@@ -67,6 +67,9 @@ Pod::Spec.new do |spec|
   spec.dependency 'MJRefresh'
   spec.dependency 'YYModel'
   spec.dependency 'AFNetworking'
+  # 天气 SDK 是二进制产物，传输层改不了；但调用前后可观测，用统一门面
+  # 的 TBBusinessMonitor 补边界样本 / 页面语义，不直接依赖 TDMonitorKit。
+  spec.dependency 'TBNetworkManager'
   
   spec.vendored_frameworks = 'Framework/QWeather.framework'
   spec.vendored_libraries = 'Framework/libPods-OpenWeatherPlus.a'

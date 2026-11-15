@@ -19,6 +19,28 @@
 #import <Masonry/Masonry.h>
 #import <QMUIKit/QMUIKit.h>
 #import <ReactiveObjC/ReactiveObjC.h>
+#import <TBNetworkManager/TBRequestManager.h>
+
+/// 和风 SDK 是二进制产物、自建 NSURLSession：业务换不了它的传输实现，
+/// 所以拿不到 `URLSessionTaskMetrics`（DNS / TCP / TLS / TTFB 一律没有）。
+/// 但「发起了哪个接口、耗时多久、成功还是失败」在调用**前后**完全可观测。
+/// 这里在调用前记起点，在 success / failure 回调里补一条边界样本，
+/// 让天气 tab 也能进统一的网络质量报表，而不是整块声明「不采」。
+///
+/// URL 用 `sdk://` 逻辑标识，不伪造真实域名（真实域名在 SDK 内部，业务看不到）；
+/// 后端按 `endpoint` 聚合，不按 URL 匹配。
+static NSString *TBWeatherSDKURL(NSString *endpoint) {
+    return [@"sdk://qweather/" stringByAppendingString:endpoint];
+}
+
+static void TBWeatherFinish(NSString *endpoint, NSDate *startedAt, NSError *error) {
+    NSTimeInterval durationMs = [[NSDate date] timeIntervalSinceDate:startedAt] * 1000.0;
+    [TBBusinessMonitor recordExternalRequest:endpoint
+                                          url:TBWeatherSDKURL(endpoint)
+                                       status:error ? 0 : 200
+                                   durationMs:durationMs
+                                        error:error];
+}
 
 @implementation QWeatherRequest
 -(instancetype)init{
@@ -41,10 +63,17 @@
             BOOL hasChinese = [keyword rangeOfString:@"[\\u4e00-\\u9fa5]"
                                              options:NSRegularExpressionSearch].location != NSNotFound;
             QWeatherConfigInstance.languageType = hasChinese ? LANGUAGE_TYPE_ZH : LANGUAGE_TYPE_EN;
+            NSDate *geoStartedAt = [NSDate date];
             [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_GEO_CITY_LOOKUP WithSuccess:^(GeoBaseClass  *responseObject) {
+                TBWeatherFinish(@"weather.geo.city_lookup", geoStartedAt, nil);
                 [subscriber sendNext:responseObject];
                 [subscriber sendCompleted];
             } faileureForError:^(NSError *error) {
+                TBWeatherFinish(@"weather.geo.city_lookup", geoStartedAt, error);
+                [TBBusinessMonitor breadcrumb:@"weather"
+                                      message:[NSString stringWithFormat:@"城市检索失败 %@(%ld)",
+                                               error.domain ?: @"", (long)error.code]
+                                        level:@"warning"];
                 [subscriber sendError:error];
                 [subscriber sendCompleted];
             }];
@@ -71,28 +100,37 @@
             dispatch_group_t group = dispatch_group_create();
             dispatch_group_enter(group);
             QWeatherConfigInstance.location = [input objectForKey:@"cityId"];
+            NSDate *nowStartedAt = [NSDate date];
             [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_WEATHER_NOW WithSuccess:^(WeatherBaseClass  *responseObject) {
+                TBWeatherFinish(@"weather.now", nowStartedAt, nil);
                 now = responseObject.now;
                 updateTime = responseObject.updateTime;
                 code = responseObject.code;
                 dispatch_group_leave(group);
             } faileureForError:^(NSError *err) {
+                TBWeatherFinish(@"weather.now", nowStartedAt, err);
                 if (!requestError) { requestError = err; }
                 dispatch_group_leave(group);
             }];
             dispatch_group_enter(group);
+            NSDate *hourlyStartedAt = [NSDate date];
             [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_WEATHER_24H WithSuccess:^(WeatherBaseClass  *responseObject) {
+                TBWeatherFinish(@"weather.24h", hourlyStartedAt, nil);
                 hourly = responseObject.hourly;
                            dispatch_group_leave(group);
                        } faileureForError:^(NSError *err) {
+                TBWeatherFinish(@"weather.24h", hourlyStartedAt, err);
                 if (!requestError) { requestError = err; }
                 dispatch_group_leave(group);
             }];
             dispatch_group_enter(group);
+            NSDate *dailyStartedAt = [NSDate date];
             [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_WEATHER_3D WithSuccess:^(WeatherBaseClass  *responseObject) {
+                TBWeatherFinish(@"weather.3d", dailyStartedAt, nil);
                 daily = responseObject.daily;
                            dispatch_group_leave(group);
         } faileureForError:^(NSError *err) {
+                TBWeatherFinish(@"weather.3d", dailyStartedAt, err);
                 if (!requestError) { requestError = err; }
                 dispatch_group_leave(group);
             }];
@@ -100,10 +138,13 @@
             dispatch_group_enter(group);
             QWeatherConfigInstance.location = [input objectForKey:@"cityId"];
             QWeatherConfigInstance.languageType= [QWeatherManager isEnglish]?LANGUAGE_TYPE_EN:LANGUAGE_TYPE_ZH;
+            NSDate *daily15StartedAt = [NSDate date];
             [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_WEATHER_15D WithSuccess:^(WeatherBaseClass  *responseObject) {
+                TBWeatherFinish(@"weather.15d", daily15StartedAt, nil);
                 daily15 = responseObject.daily;
                 dispatch_group_leave(group);
             } faileureForError:^(NSError *err) {
+                TBWeatherFinish(@"weather.15d", daily15StartedAt, err);
                 // 15 天预报属于增强数据：免费套餐可能不可用，失败不应影响主流程刷新
                 dispatch_group_leave(group);
             }];
@@ -112,10 +153,13 @@
             QWeatherConfigInstance.location = [input objectForKey:@"cityId"];
             QWeatherConfigInstance.indices = @[@(INDICES_TYPE_drsg), @(INDICES_TYPE_uv), @(INDICES_TYPE_cw), @(INDICES_TYPE_spt), @(INDICES_TYPE_comf), @(INDICES_TYPE_flu)];
             QWeatherConfigInstance.languageType= [QWeatherManager isEnglish]?LANGUAGE_TYPE_EN:LANGUAGE_TYPE_ZH;
+            NSDate *indicesStartedAt = [NSDate date];
             [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_INDICES_1D WithSuccess:^(IndicesBaseClass  *responseObject) {
+                TBWeatherFinish(@"weather.indices", indicesStartedAt, nil);
                 indicesModel = responseObject;
                 dispatch_group_leave(group);
             } faileureForError:^(NSError *err) {
+                TBWeatherFinish(@"weather.indices", indicesStartedAt, err);
                 // 生活指数为可选数据，失败时隐藏该区块即可
                 dispatch_group_leave(group);
             }];
@@ -139,10 +183,13 @@
                 QWeatherConfigInstance.alt = @"0";
                 QWeatherConfigInstance.date = [sunMoonFormatter stringFromDate:[NSDate date]];
                 QWeatherConfigInstance.time = @"1200";
+                NSDate *sunMoonStartedAt = [NSDate date];
                 [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_SUNMOON WithSuccess:^(SunMoonBaseModel  *responseObject) {
+                    TBWeatherFinish(@"weather.sunmoon", sunMoonStartedAt, nil);
                     sunMoonModel = responseObject;
                     dispatch_group_leave(group);
                 } faileureForError:^(NSError *err) {
+                    TBWeatherFinish(@"weather.sunmoon", sunMoonStartedAt, err);
                     // 日月信息为可选数据，失败不影响天气主数据
                     dispatch_group_leave(group);
                 }];
@@ -152,10 +199,13 @@
                 dispatch_group_enter(group);
                 QWeatherConfigInstance.location = [input objectForKey:@"parent_city"];
                 QWeatherConfigInstance.languageType= [QWeatherManager isEnglish]?LANGUAGE_TYPE_EN:LANGUAGE_TYPE_ZH;
+                NSDate *parentAirStartedAt = [NSDate date];
                 [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_WEATHER_AIR_NOW WithSuccess:^(AirBaseClass  *responseObject) {
+                    TBWeatherFinish(@"weather.air.parent", parentAirStartedAt, nil);
                     AirBaseDataModel = responseObject;
                     dispatch_group_leave(group);
                 } faileureForError:^(NSError *err) {
+                    TBWeatherFinish(@"weather.air.parent", parentAirStartedAt, err);
                 if (!requestError) { requestError = err; }
                 dispatch_group_leave(group);
             }];
@@ -163,10 +213,13 @@
             dispatch_group_enter(group);
             QWeatherConfigInstance.location = [input objectForKey:@"location"];
             QWeatherConfigInstance.languageType= [QWeatherManager isEnglish]?LANGUAGE_TYPE_EN:LANGUAGE_TYPE_ZH;
+            NSDate *locationAirStartedAt = [NSDate date];
             [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_WEATHER_AIR_NOW WithSuccess:^(AirBaseClass  *responseObject) {
+                TBWeatherFinish(@"weather.air.now", locationAirStartedAt, nil);
                 locationAirBaseDataModel = responseObject;
                 dispatch_group_leave(group);
             } faileureForError:^(NSError *err) {
+                TBWeatherFinish(@"weather.air.now", locationAirStartedAt, err);
                 if (!requestError) { requestError = err; }
                 dispatch_group_leave(group);
             }];
@@ -174,14 +227,23 @@
             dispatch_group_enter(group);
             QWeatherConfigInstance.location = [input objectForKey:@"cityId"];
             QWeatherConfigInstance.languageType= [QWeatherManager isEnglish]?LANGUAGE_TYPE_EN:LANGUAGE_TYPE_ZH;
+            NSDate *warningStartedAt = [NSDate date];
             [QWeatherConfigInstance weatherWithInquireType:INQUIRE_TYPE_WARNING WithSuccess:^(WarningBaseClass  *responseObject) {
+                TBWeatherFinish(@"weather.warning", warningStartedAt, nil);
                 alarmBaseClass = responseObject;
                 dispatch_group_leave(group);
             } faileureForError:^(NSError *error) {
+                TBWeatherFinish(@"weather.warning", warningStartedAt, error);
                 dispatch_group_leave(group);
             }];
             dispatch_group_notify(group, dispatch_get_main_queue(), ^{
                 if (requestError) {
+                    // 一次首页刷新最多 9 个 SDK 请求，失败面包屑只打在「整次刷新」这一层，
+                    // 不逐条打，避免 15 天预报 / 生活指数这类可选接口失败时刷屏。
+                    [TBBusinessMonitor breadcrumb:@"weather"
+                                          message:[NSString stringWithFormat:@"天气首页刷新失败 %@(%ld)",
+                                                   requestError.domain ?: @"", (long)requestError.code]
+                                            level:@"warning"];
                     [subscriber sendError:requestError];
                     [subscriber sendCompleted];
                 }else{

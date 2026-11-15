@@ -22,6 +22,7 @@
 #import <QWeather/QWeather.h>
 
 #import <FDFullscreenPopGesture/UINavigationController+FDFullscreenPopGesture.h>
+#import <TBNetworkManager/TBRequestManager.h>
 
 #import "CommonMacros.h"
 #import "FontAndColorMacros.h"
@@ -74,6 +75,14 @@
         });
     }
 #endif
+}
+
+/// 业务页面语义：天气 tab 的请求虽在二进制 SDK 里，但「用户在哪个页面」
+/// 属于业务边界，可以正常拿到。写在 `[super viewDidAppear:]` 之后——
+/// UIViewController 的生命周期 swizzle 会 push 自动类名并清掉手动 override。
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [TBBusinessMonitor setScreen:@"weather.home"];
 }
 
 -(void)addNotice{
