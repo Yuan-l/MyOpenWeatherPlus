@@ -24,11 +24,11 @@
 /// 和风 SDK 是二进制产物、自建 NSURLSession：业务换不了它的传输实现，
 /// 所以拿不到 `URLSessionTaskMetrics`（DNS / TCP / TLS / TTFB 一律没有）。
 /// 但「发起了哪个接口、耗时多久、成功还是失败」在调用**前后**完全可观测。
-/// 这里在调用前记起点，在 success / failure 回调里补一条边界样本，
-/// 让天气 tab 也能进统一的网络质量报表，而不是整块声明「不采」。
+/// 这里在调用前记起点，在 success / failure 回调里补一条**业务边界层**样本，
+/// 让天气 tab 的调用可观测，但不与传输层网络指标混算（见 `TBRequestManager.h`）。
 ///
-/// URL 用 `sdk://` 逻辑标识，不伪造真实域名（真实域名在 SDK 内部，业务看不到）；
-/// 后端按 `endpoint` 聚合，不按 URL 匹配。
+/// URL 用 `sdk://` 逻辑标识，不伪造真实域名（真实域名在 SDK 内部，业务看不到），
+/// 且只作追溯用，不会写成 `api_metric.url`；后台按 `endpoint` 聚合。
 static NSString *TBWeatherSDKURL(NSString *endpoint) {
     return [@"sdk://qweather/" stringByAppendingString:endpoint];
 }
