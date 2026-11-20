@@ -7,6 +7,7 @@
 //
 
 #import "QWeatherCityManagerViewController.h"
+#import <TBNetworkManager/TBRequestManager.h>
 #import "QWeatherCityManagerCell.h"
 #import "QWeatherDataManager.h"
 #import "QWeatherTool.h"
@@ -24,6 +25,13 @@
 @end
 
 @implementation QWeatherCityManagerViewController
+
+/// 业务页面语义：写在 [super viewDidAppear:] 之后，避免被 VC 生命周期 swizzle
+/// push 的自动类名覆盖（首页 QWeatherHomeViewController 同范式）。
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [TBBusinessMonitor setScreen:@"weather.city_manager"];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];

@@ -37,6 +37,7 @@
 @property (nonatomic,strong) TBWeatherCityBar *cityBar;
 @property (nonatomic,strong) QWeatherRequest *weatherRequest;
 @property (nonatomic,strong) AMapLocationManager *locationManager;
+@property (nonatomic,strong) NSDate *locationStartedAt;
 @property (nonatomic,strong) UILabel *emptyLabel;
 @property (nonatomic,strong) UILabel *errorHintLabel;
 @end
@@ -147,6 +148,7 @@
     }else{
         QWeatherPostNotification(KNotificationRefreshHomeData, nil);
         if (![QWeatherTool isLocationAuthorizationStatusDenied]) {
+            self.locationStartedAt = [NSDate date];
             [self.locationManager startUpdatingLocation];
         }else{
             [self loadDefaultCityIfNeeded];
@@ -161,8 +163,22 @@
 
 - (void)amapLocationManager:(AMapLocationManager *)manager didFailWithError:(NSError *)error{
     [self.locationManager stopUpdatingLocation];
+    [self recordLocationBoundaryWithError:error];
     QWeatherLogError(@"%@",error);
     [self loadDefaultCityIfNeeded];
+}
+
+/// 定位边界样本：AMap 自建 session，传输层拿不到；「定位成败 + 耗时」是业务可见的。
+/// startedAt 为空表示这次回调不是我们发起的那轮（连续定位的后续回调），不重复记。
+- (void)recordLocationBoundaryWithError:(NSError *)error {
+    if (!self.locationStartedAt) { return; }
+    NSTimeInterval durationMs = [[NSDate date] timeIntervalSinceDate:self.locationStartedAt] * 1000.0;
+    self.locationStartedAt = nil;
+    [TBBusinessMonitor recordExternalRequest:@"amap.location"
+                                         url:@"sdk://amap/location"
+                                      status:error ? 0 : 200
+                                  durationMs:durationMs
+                                       error:error];
 }
 
 /// 定位不可用且没有任何城市时，退回到默认城市，避免首页空白
@@ -176,6 +192,7 @@
 
 - (void)amapLocationManager:(AMapLocationManager *)manager didUpdateLocation:(CLLocation *)location reGeocode:(AMapLocationReGeocode *)reGeocode{
     [self.locationManager stopUpdatingLocation];
+    [self recordLocationBoundaryWithError:nil];
     [self getDataWithLocation:QWeatherStringFormat(@"%.2f,%.2f",location.coordinate.longitude,location.coordinate.latitude) isLoaction:YES];
 }
 
