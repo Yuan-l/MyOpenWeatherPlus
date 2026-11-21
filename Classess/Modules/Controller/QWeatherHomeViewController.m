@@ -83,7 +83,7 @@
 /// UIViewController 的生命周期 swizzle 会 push 自动类名并清掉手动 override。
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [TBBusinessMonitor setScreen:@"weather.home"];
+    [TBBusinessMonitor setScreen:@"weather.home" page:self];
 }
 
 -(void)addNotice{

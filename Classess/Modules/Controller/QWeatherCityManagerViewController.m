@@ -30,7 +30,7 @@
 /// push 的自动类名覆盖（首页 QWeatherHomeViewController 同范式）。
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [TBBusinessMonitor setScreen:@"weather.city_manager"];
+    [TBBusinessMonitor setScreen:@"weather.city_manager" page:self];
 }
 
 - (void)viewDidLoad {
